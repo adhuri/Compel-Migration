@@ -5,14 +5,14 @@ import "github.com/Sirupsen/logrus"
 type Bucket struct {
 	AgentIP          string
 	ContainerDetails []*Container
-	PseudoFreeCPU    float64 // Psuedo - This changes every time you make a local decision of moving containers across
-	PseudoFreeMemory float64 // Psuedo - This changes every time you make a local decision of moving containers across
+	PseudoFreeCPU    float32 // Psuedo - This changes every time you make a local decision of moving containers across
+	PseudoFreeMemory float32 // Psuedo - This changes every time you make a local decision of moving containers across
 }
 
 type Container struct {
 	ContainerID string
-	CPUValue    float64
-	MemValue    float64
+	CPUValue    float32
+	MemValue    float32
 }
 
 func NewBucket(AgentIP string) *Bucket {
@@ -24,7 +24,7 @@ func NewBucket(AgentIP string) *Bucket {
 	}
 }
 
-func NewContainer(ContainerID string, CPUValue float64, MemValue float64) *Container {
+func NewContainer(ContainerID string, CPUValue float32, MemValue float32) *Container {
 	return &Container{
 		ContainerID: ContainerID,
 		CPUValue:    CPUValue,
@@ -32,21 +32,22 @@ func NewContainer(ContainerID string, CPUValue float64, MemValue float64) *Conta
 	}
 }
 
-func (m *Bucket) GetFreeCPU() float64 {
-	totalCPU := 100.0
-	freeCPU := 0.0
+func (m *Bucket) GetFreeCPU() float32 {
+	totalCPU := float32(100.0)
+	freeCPU := float32(0.0)
 	for _, container := range m.ContainerDetails {
 		freeCPU += container.CPUValue
 	}
 	return totalCPU - freeCPU
 }
 
-func (m *Bucket) GetFreeMemory() float64 {
-	freeMem := 0.0
+func (m *Bucket) GetFreeMemory() float32 {
+	totalMem := float32(0.0)
+	freeMem := float32(0.0)
 	for _, container := range m.ContainerDetails {
 		freeMem += container.MemValue
 	}
-	return freeMem
+	return totalMem - freeMem
 }
 
 func (m *Bucket) PrintBucket(log *logrus.Logger) {

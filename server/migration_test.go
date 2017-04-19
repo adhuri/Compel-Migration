@@ -35,31 +35,15 @@ func initLog() {
 
 }
 
-type PredictionData struct {
-	Timestamp  int64
-	ClientData []ClientInfo
-}
-
-type ClientInfo struct {
-	AgentIp       string
-	ContainerData []ContainerInfo
-}
-
-type ContainerInfo struct {
-	ContainerId string
-	CPU         []float64
-	Memory      []float64
-}
-
 func dummyData() *protocol.PredictionData {
-	cpuPredictions1 := []float64{1.2, 1.3, 1.14, 1.5}
-	memoryPredictions1 := []float64{1.2, 1.3, 1.14, 1.5}
+	cpuPredictions1 := []float32{1.2, 1.3, 1.14, 1.5}
+	memoryPredictions1 := []float32{1.2, 1.3, 1.14, 1.5}
 
-	cpuPredictions2 := []float64{2.3, 3.3, 4.14, 4.5}
-	memoryPredictions2 := []float64{7.2, 8.3, 9.14, 5.5}
+	cpuPredictions2 := []float32{2.3, 3.3, 4.14, 4.5}
+	memoryPredictions2 := []float32{7.2, 8.3, 9.14, 5.5}
 
-	cpuPredictions3 := []float64{3.2, 4.3, 2.14, 11.5}
-	memoryPredictions3 := []float64{4.2, 4.3, 4.14, 9.5}
+	cpuPredictions3 := []float32{3.2, 4.3, 2.14, 11.5}
+	memoryPredictions3 := []float32{4.2, 4.3, 4.14, 9.5}
 
 	// Agent IP 1
 	agentIP1 := "10.10.3.1"

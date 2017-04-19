@@ -1,19 +1,19 @@
 package strategy
 
-func calculateValue(array []float64) float64 {
+func calculateValue(array []float32) float32 {
 	return average(array)
 }
 
-func average(array []float64) float64 {
-	var total float64
+func average(array []float32) float32 {
+	var total float32
 	for _, value := range array {
 		total += value
 	}
-	return (total / float64(len(array)))
+	return (total / float32(len(array)))
 
 }
 
-func max(array []float64) (maxElement float64) {
+func max(array []float32) (maxElement float32) {
 	//Find max in an array
 	maxElement = array[0]
 	for _, element := range array {
