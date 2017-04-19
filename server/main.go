@@ -51,10 +51,6 @@ func main() {
 
 }
 
-func SendMigrationRequest(migrationInfo *migrationProtocol.CheckpointRequest) {
-	// I will write code to send request to the appropriate agent
-}
-
 func handlePredictionDataMessage(conn net.Conn, server *model.Server) {
 	// Read the ConnectRequest
 	predictionDataMessage := migrationProtocol.PredictionData{}
@@ -92,7 +88,7 @@ func handlePredictionDataMessage(conn net.Conn, server *model.Server) {
 
 	// send migration request if decided to migrate
 	if migrationNeeded {
-		err = SendMigrationRequest(migrationInfo)
+		err = SendMigrationRequest(migrationInfo, server, log)
 		if err != nil {
 			log.Infoln("Migration Was Failure")
 			return

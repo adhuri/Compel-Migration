@@ -5,6 +5,7 @@ import (
 	"net"
 	"os"
 	"sync"
+	"time"
 
 	"github.com/Sirupsen/logrus"
 	"github.com/adhuri/Compel-Migration/protocol"
@@ -46,6 +47,8 @@ func handleMigrationRequest(conn net.Conn) {
 	// If success, print the message received
 	log.Infoln("Migration Request Received")
 	log.Debugln("Migration Request Content : ", migrationRequest)
+
+	time.Sleep(90 * time.Second)
 
 	// Create a ConnectAck Message
 	migrationAck := protocol.NewCheckpointResponse(migrationRequest, true)
