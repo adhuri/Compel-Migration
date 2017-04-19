@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/gob"
-	"fmt"
 	"net"
 	"os"
 	"strconv"
@@ -83,13 +82,12 @@ func handlePredictionDataMessage(conn net.Conn, server *model.Server) {
 
 	//fmt.Println("Yayy ----------------------", predictionDataMessage)
 	ts := strconv.FormatInt(predictionDataMessage.Timestamp, 10)
-	fmt.Println("Timestamp", ts)
 	log.Infoln("Prediction Data Ack Sent for Request Id " + ts)
 	// close connection when done
 	conn.Close()
 
 	// migration decision
-	migrationNeeded, migrationInfo := strategy.MigrationNeeded(&predictionDataMessage, server)
+	migrationNeeded, migrationInfo := strategy.MigrationNeeded(&predictionDataMessage, server, log)
 
 	// send migration request if decided to migrate
 	if migrationNeeded {

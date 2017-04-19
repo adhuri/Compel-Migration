@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/gob"
-	"fmt"
 	"net"
 	"os"
 	"testing"
@@ -36,16 +35,58 @@ func initLog() {
 
 }
 
+type PredictionData struct {
+	Timestamp  int64
+	ClientData []ClientInfo
+}
+
+type ClientInfo struct {
+	AgentIp       string
+	ContainerData []ContainerInfo
+}
+
+type ContainerInfo struct {
+	ContainerId string
+	CPU         []float64
+	Memory      []float64
+}
+
 func dummyData() *protocol.PredictionData {
-	cpuPredictions := []float64{1.2, 1.3, 1.14, 1.5}
-	memoryPredictions := []float64{1.2, 1.3, 1.14, 1.5}
-	agentIp := "10.10.3.1"
-	containerInfo := protocol.NewContainerInfo("abc123", cpuPredictions, memoryPredictions)
-	containerData := []protocol.ContainerInfo{*containerInfo}
-	clientInfo := protocol.NewClientInfo(agentIp, containerData)
-	clientData := []protocol.ClientInfo{*clientInfo}
-	predictionData := protocol.NewPredictionData(time.Now().Unix(), clientData)
-	fmt.Println("yay", predictionData)
+	cpuPredictions1 := []float64{1.2, 1.3, 1.14, 1.5}
+	memoryPredictions1 := []float64{1.2, 1.3, 1.14, 1.5}
+
+	cpuPredictions2 := []float64{2.3, 3.3, 4.14, 4.5}
+	memoryPredictions2 := []float64{7.2, 8.3, 9.14, 5.5}
+
+	cpuPredictions3 := []float64{3.2, 4.3, 2.14, 11.5}
+	memoryPredictions3 := []float64{4.2, 4.3, 4.14, 9.5}
+
+	// Agent IP 1
+	agentIP1 := "10.10.3.1"
+
+	containerInfo1 := protocol.NewContainerInfo("container31", cpuPredictions1, memoryPredictions1)
+	containerInfo2 := protocol.NewContainerInfo("container32", cpuPredictions2, memoryPredictions2)
+
+	containerData1 := []protocol.ContainerInfo{*containerInfo1, *containerInfo2}
+
+	clientInfo1 := protocol.NewClientInfo(agentIP1, containerData1)
+
+	// Agent IP 2
+
+	agentIP2 := "10.10.4.1"
+
+	containerInfo3 := protocol.NewContainerInfo("container41", cpuPredictions3, memoryPredictions3)
+
+	containerData2 := []protocol.ContainerInfo{*containerInfo3}
+
+	clientInfo2 := protocol.NewClientInfo(agentIP2, containerData2)
+
+	// Add both Agents to ClientInfo
+
+	clientData1 := []protocol.ClientInfo{*clientInfo1, *clientInfo2}
+
+	predictionData := protocol.NewPredictionData(time.Now().Unix(), clientData1)
+
 	return predictionData
 }
 
