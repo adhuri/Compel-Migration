@@ -92,12 +92,15 @@ func handlePredictionDataMessage(conn net.Conn, server *model.Server) {
 
 	// send migration request if decided to migrate
 	if migrationNeeded {
-		SendMigrationRequest(migrationInfo)
-		// log data in to a file
+		err = SendMigrationRequest(migrationInfo)
+		if err != nil {
+			log.Infoln("Migration Was Failure")
+			return
+		}
+		log.Infoln("Migration Was Success")
 	} else {
-		// log data into a file
+		log.Infoln("Migration Was Not Needed")
 	}
-
 }
 
 func tcpListener(wg *sync.WaitGroup, server *model.Server) {
