@@ -12,8 +12,8 @@ type ClientInfo struct {
 
 type ContainerInfo struct {
 	ContainerId string
-	CPU         []float64
-	Memory      []float64
+	CPU         []float32
+	Memory      []float32
 }
 
 type PredictionDataResponse struct {
@@ -41,7 +41,7 @@ func NewClientInfo(agentIp string, containerInfo []ContainerInfo) *ClientInfo {
 	}
 }
 
-func NewContainerInfo(containerId string, cpuPredictions, memoryPredictions []float64) *ContainerInfo {
+func NewContainerInfo(containerId string, cpuPredictions, memoryPredictions []float32) *ContainerInfo {
 	return &ContainerInfo{
 		ContainerId: containerId,
 		CPU:         cpuPredictions,
