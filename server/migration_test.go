@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/gob"
+	"fmt"
 	"net"
 	"os"
 	"testing"
@@ -44,7 +45,7 @@ func dummyData() *protocol.PredictionData {
 	clientInfo := protocol.NewClientInfo(agentIp, containerData)
 	clientData := []protocol.ClientInfo{*clientInfo}
 	predictionData := protocol.NewPredictionData(time.Now().Unix(), clientData)
-
+	fmt.Println("yay", predictionData)
 	return predictionData
 }
 
@@ -52,7 +53,7 @@ func sendPredictionData(conn net.Conn) error {
 
 	predictionData := dummyData()
 
-	log.Infoln("Sample Prediction data message ", predictionData)
+	//log.Infoln("Sample Prediction data message ", predictionData)
 
 	encoder := gob.NewEncoder(conn)
 	err := encoder.Encode(predictionData)

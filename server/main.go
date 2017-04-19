@@ -2,8 +2,10 @@ package main
 
 import (
 	"encoding/gob"
+	"fmt"
 	"net"
 	"os"
+	"strconv"
 	"sync"
 
 	"github.com/Sirupsen/logrus"
@@ -26,8 +28,7 @@ func init() {
 	log.Out = os.Stdout
 
 	// Only log the info severity or above.
-	log.Level = logrus.InfoLevel
-
+	log.Level = logrus.DebugLevel
 	// Microseconds level logging
 	customFormatter := new(logrus.TextFormatter)
 	customFormatter.TimestampFormat = "2006-01-02 15:04:05.000000"
@@ -79,7 +80,11 @@ func handlePredictionDataMessage(conn net.Conn, server *model.Server) {
 		log.Errorln("Prediction Data Ack")
 		return
 	}
-	log.Infoln("Prediction Data Ack Sent for Request Id " + string(predictionDataMessage.Timestamp))
+
+	//fmt.Println("Yayy ----------------------", predictionDataMessage)
+	ts := strconv.FormatInt(predictionDataMessage.Timestamp, 10)
+	fmt.Println("Timestamp", ts)
+	log.Infoln("Prediction Data Ack Sent for Request Id " + ts)
 	// close connection when done
 	conn.Close()
 
