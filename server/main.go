@@ -9,7 +9,7 @@ import (
 	"github.com/Sirupsen/logrus"
 
 	migrationProtocol "github.com/adhuri/Compel-Migration/protocol"
-	"github.com/adhuri/Compel-Monitoring/compel-monitoring-server/model"
+	model "github.com/adhuri/Compel-Migration/server/model"
 )
 
 // on receiving tcp packet
@@ -40,7 +40,7 @@ func init() {
 
 }
 
-func handlePredictionDataMessage(conn net.Conn) {
+func handlePredictionDataMessage(conn net.Conn, server *model.Server) {
 	// Read the ConnectRequest
 	predictionDataMessage := migrationProtocol.PredictionData{}
 	decoder := gob.NewDecoder(conn)
@@ -74,7 +74,7 @@ func handlePredictionDataMessage(conn net.Conn) {
 
 }
 
-func tcpListener(wg *sync.WaitGroup) {
+func tcpListener(wg *sync.WaitGroup, server *model.Server) {
 	defer wg.Done()
 	// Server listens on all interfaces for TCP connestion
 	addr := ":" + "5051"
@@ -92,17 +92,19 @@ func tcpListener(wg *sync.WaitGroup) {
 			// If error continue to wait for other clients to connect
 			continue
 		}
-		go handlePredictionDataMessage(conn)
+		go handlePredictionDataMessage(conn, server)
 	}
 }
 
 func main() {
 	// tcp listener
 
+	server = model.NewServer()
+
 	var wg sync.WaitGroup
 	wg.Add(1)
 
-	go tcpListener(&wg)
+	go tcpListener(&wg, server)
 
 	wg.Wait()
 
