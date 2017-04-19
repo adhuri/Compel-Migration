@@ -9,7 +9,10 @@ type Server struct {
 }
 
 func NewServer() *Server {
-	return &Server{}
+	return &Server{
+		previousMigrationMap: make(map[string]int64),
+		migrationStatus:      make(map[string]bool),
+	}
 }
 
 func (server *Server) GetPreviousContainerMigrationTime(containerId string) int64 {
