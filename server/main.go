@@ -10,6 +10,7 @@ import (
 
 	migrationProtocol "github.com/adhuri/Compel-Migration/protocol"
 	model "github.com/adhuri/Compel-Migration/server/model"
+	strategy "github.com/adhuri/Compel-Migration/server/strategy"
 )
 
 // on receiving tcp packet
@@ -38,6 +39,10 @@ func init() {
 
 	log.Formatter = customFormatter
 
+}
+
+func SendMigrationRequest(migrationInfo *migrationProtocol.CheckpointRequest) {
+	// I will write code to send request to the appropriate agent
 }
 
 func handlePredictionDataMessage(conn net.Conn, server *model.Server) {
@@ -71,6 +76,17 @@ func handlePredictionDataMessage(conn net.Conn, server *model.Server) {
 	log.Infoln("Prediction Data Ack Sent for Request Id " + string(predictionDataMessage.Timestamp))
 	// close connection when done
 	conn.Close()
+
+	// migration decision
+	migrationNeeded, migrationInfo := strategy.MigrationNeeded(&predictionDataMessage, server)
+
+	// send migration request if decided to migrate
+	if migrationNeeded {
+		SendMigrationRequest(migrationInfo)
+		// log data in to a file
+	} else {
+		// log data into a file
+	}
 
 }
 
