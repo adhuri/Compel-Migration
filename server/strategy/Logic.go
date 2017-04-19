@@ -28,10 +28,8 @@ func MigrationNeeded(predictionData *protocol.PredictionData, server *model.Serv
 		}
 		// Add newBucket to Buckets list
 		Buckets = append(Buckets, newBucket)
-
 	}
 
-	log.Debugln("Buckets Data structure ", Buckets)
-
+	PrintAllBuckets(Buckets, log)
 	return true, &protocol.CheckpointRequest{}
 }
