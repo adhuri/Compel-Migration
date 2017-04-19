@@ -7,5 +7,5 @@ import (
 
 func MigrationNeeded(predictionData *protocol.PredictionData, server *model.Server) (bool, *protocol.CheckpointRequest) {
 	// complete this function with the migration logic
-	return false, &protocol.CheckpointRequest{}
+	return true, &protocol.CheckpointRequest{}
 }

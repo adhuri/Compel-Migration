@@ -58,7 +58,7 @@ func sendPredictionData(conn net.Conn) error {
 		tlog.Errorln("Failure While Sending Data To Server " + err.Error())
 		return err
 	}
-	tlog.Infoln("Connect Message Successfully Sent")
+	tlog.Infoln("Prediction Data Message Successfully Sent")
 
 	// read ack from the server
 	serverReply := protocol.PredictionDataResponse{}
@@ -71,13 +71,13 @@ func sendPredictionData(conn net.Conn) error {
 
 	} else {
 		// Print the ACK received from the server
-		tlog.Infoln("Connect ACK Received")
+		tlog.Infoln("Prediction Data Message ACK Received")
 	}
 	// If everything goes well return nil error
 	return nil
 }
 
-func testMigrationCode(t *testing.T) {
+func TestMigrationCode(t *testing.T) {
 	initLog()
 	addr := "127.0.0.1" + ":" + "5051"
 	conn, err := net.Dial("tcp", addr)

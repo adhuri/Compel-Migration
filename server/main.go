@@ -13,10 +13,6 @@ import (
 	strategy "github.com/adhuri/Compel-Migration/server/strategy"
 )
 
-// on receiving tcp packet
-// process it
-// if decision to migrate send a migration request
-
 var (
 	log    *logrus.Logger
 	server *model.Server
@@ -122,7 +118,7 @@ func tcpListener(wg *sync.WaitGroup, server *model.Server) {
 			// If error continue to wait for other clients to connect
 			continue
 		}
-		log.Infoln(" Accepted Connection from Prediction Client ", string(conn))
+		log.Infoln(" Accepted Connection from Prediction Client ")
 		go handlePredictionDataMessage(conn, server)
 	}
 }
