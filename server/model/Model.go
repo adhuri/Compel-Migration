@@ -4,8 +4,8 @@ import "sync"
 
 type Server struct {
 	sync.RWMutex
-	previousMigrationMap map[string]int64
-	migrationStatus      map[string]bool
+	previousMigrationMap map[string]int64 //timestamp when last migrated to avoid thrashing
+	migrationStatus      map[string]bool  // To avoid duplicate migration requests
 }
 
 func NewServer() *Server {

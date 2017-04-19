@@ -24,7 +24,7 @@ func initLog() {
 	tlog.Out = os.Stdout
 
 	// Only log the info severity or above.
-	tlog.Level = logrus.InfoLevel
+	tlog.Level = logrus.DebugLevel
 
 	// Microseconds level logging
 	customFormatter := new(logrus.TextFormatter)
@@ -51,6 +51,9 @@ func dummyData() *protocol.PredictionData {
 func sendPredictionData(conn net.Conn) error {
 
 	predictionData := dummyData()
+
+	log.Infoln("Sample Prediction data message ", predictionData)
+
 	encoder := gob.NewEncoder(conn)
 	err := encoder.Encode(predictionData)
 	if err != nil {
@@ -80,6 +83,7 @@ func sendPredictionData(conn net.Conn) error {
 func TestMigrationCode(t *testing.T) {
 	initLog()
 	addr := "127.0.0.1" + ":" + "5051"
+	log.Info("Connect test client to server ", addr)
 	conn, err := net.Dial("tcp", addr)
 	if err != nil {
 		// Before trying to reconnect to the server wait for 3 seconds
