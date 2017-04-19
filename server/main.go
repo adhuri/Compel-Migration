@@ -41,6 +41,20 @@ func init() {
 
 }
 
+func main() {
+	// tcp listener
+
+	server = model.NewServer()
+
+	var wg sync.WaitGroup
+	wg.Add(1)
+
+	go tcpListener(&wg, server)
+
+	wg.Wait()
+
+}
+
 func SendMigrationRequest(migrationInfo *migrationProtocol.CheckpointRequest) {
 	// I will write code to send request to the appropriate agent
 }
@@ -94,7 +108,7 @@ func tcpListener(wg *sync.WaitGroup, server *model.Server) {
 	defer wg.Done()
 	// Server listens on all interfaces for TCP connestion
 	addr := ":" + "5051"
-
+	log.Infoln("Migration Server listening on TCP ", addr)
 	listener, err := net.Listen("tcp", addr)
 	if err != nil {
 		log.Fatalln("Server Failed To Start ")
@@ -108,20 +122,7 @@ func tcpListener(wg *sync.WaitGroup, server *model.Server) {
 			// If error continue to wait for other clients to connect
 			continue
 		}
+		log.Infoln(" Accepted Connection from Prediction Client ", string(conn))
 		go handlePredictionDataMessage(conn, server)
 	}
-}
-
-func main() {
-	// tcp listener
-
-	server = model.NewServer()
-
-	var wg sync.WaitGroup
-	wg.Add(1)
-
-	go tcpListener(&wg, server)
-
-	wg.Wait()
-
 }

@@ -1,0 +1,39 @@
+---
+# This playbook builds and deploys server and client on specified ports on respective hosts
+# Copy keys using `ssh-copy-id username@ip`
+
+- hosts: compel-server
+  vars:
+    module_name: "Compel-Migration"
+    go_path: "{{ lookup('env','GOPATH') }}"
+  tasks:
+    - name: Deploy {{ module_name }} on compel
+      copy:
+        src: /{{ go_path }}/bin/{{ module_name }}
+        dest: ~/{{ module_name }}
+        mode: "u+x"
+
+    # - name: Start {{ module_name }}-server #on port {{server_port}}
+    #   #shell: ~/{{ module_name }}-server {{server_port}}
+    #   shell: ~/{{ module_name }}-server > ~/{{ module_name }}-server.log &
+
+      #changed_when: false
+
+
+#Change to host1 and host2 for prod
+- hosts: host1,host2
+  vars:
+    module_name: "compel-migration"
+    go_path: "{{ lookup('env','GOPATH') }}"
+  tasks:
+    - name: Deploy {{ module_name }} scripts on agents - As of now do nothing
+      #copy:
+      #  src: /{{ go_path }}/bin/{{ module_name }}-agent
+      #  dest: ~/{{ module_name }}-agent
+      #  mode: "u+x"
+
+    # - name: Start {{ module_name }}-agent #on port {{server_port}}
+    #   #shell: ~/{{ module_name }}-server {{server_port}}
+    #   shell: ~/{{ module_name }}-agent > ~/{{ module_name }}-agent.log &
+
+      #changed_when: false
