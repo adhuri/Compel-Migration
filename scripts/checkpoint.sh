@@ -37,9 +37,9 @@ if [ ! -d "$DIRECTORY" ]; then
 fi
 
 #checkpoint a container
-start=`date +%s%N`
+start=`date +%s%3N`
 time docker checkpoint create --checkpoint-dir $DIRECTORY $CONTAINER_ID $CHECKPOINT_NAME
-end=`date +%s%N`
+end=`date +%s%3N`
 runtime=$((end-start))
 echo "Execution Time : $runtime nanoseconds"
 
@@ -57,4 +57,6 @@ CHECKPOINT_LOCATION="$DIRECTORY/$CHECKPOINT_NAME/"
 SCP_LOCATION="$USER@$DESTINATION_IP:$DIRECTORY"
 time scp -r $CHECKPOINT_LOCATION $SCP_LOCATION
 
-#clean up script
+#clean up
+docker rm $CONTAINER_ID
+rm $TAR_NAME
