@@ -38,7 +38,7 @@ fi
 
 #checkpoint a container
 start=`date +%s%3N`
-docker checkpoint create --checkpoint-dir $DIRECTORY $CONTAINER_ID $CHECKPOINT_NAME
+time docker checkpoint create --checkpoint-dir $DIRECTORY $CONTAINER_ID $CHECKPOINT_NAME
 end=`date +%s%3N`
 runtime=$((end-start))
 echo "Execution Time : $runtime milliseconds"
