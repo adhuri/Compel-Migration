@@ -59,9 +59,10 @@ func handleMigrationRequest(conn net.Conn) {
 	//err = binary.Write(conn, binary.LittleEndian, connectAck)
 	if err != nil {
 		// If failure in parsing, close the connection and return
-		log.Errorln("Prediction Data Ack")
+		log.Errorln("Failure in Sending Migration Success Ack")
 		return
 	}
+	log.Infoln("Migration Was Success")
 	// close connection when done
 	conn.Close()
 
