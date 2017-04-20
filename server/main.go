@@ -43,10 +43,13 @@ func main() {
 	// tcp listener
 
 	immovableContainers := flag.String("immovable", "", "Comma seperated container IDs of immovable containers eg \"mysql1,mysql2,ff7a945953c7\" ")
+	migrationFeatureStatus := flag.Bool("migrate", false, "true to turn on Migration Feature ")
+
 	flag.Parse()
 
 	log.WithFields(logrus.Fields{
 		"immovable": *immovableContainers,
+		"migrate":   *migrationFeatureStatus,
 	}).Infoln("Inputs from command line")
 
 	immovableContainersList := strings.Split(*immovableContainers, ",")
@@ -57,7 +60,7 @@ func main() {
 	var wg sync.WaitGroup
 	wg.Add(1)
 
-	go tcpListener(&wg, server)
+	go tcpListener(&wg, server, *migrationFeatureStatus)
 
 	wg.Wait()
 
@@ -114,7 +117,7 @@ func handlePredictionDataMessage(conn net.Conn, server *model.Server) {
 	}
 }
 
-func tcpListener(wg *sync.WaitGroup, server *model.Server) {
+func tcpListener(wg *sync.WaitGroup, server *model.Server, migrationFeatureStatus bool) {
 	defer wg.Done()
 	// Server listens on all interfaces for TCP connestion
 	addr := ":" + "5051"
@@ -132,7 +135,13 @@ func tcpListener(wg *sync.WaitGroup, server *model.Server) {
 			// If error continue to wait for other clients to connect
 			continue
 		}
-		log.Infoln(" Accepted Connection from Prediction Client ")
-		go handlePredictionDataMessage(conn, server)
+		log.Infoln("Accepted Connection from Prediction Client ")
+		if migrationFeatureStatus {
+			go handlePredictionDataMessage(conn, server)
+		}
+		// If migration Feature is disabled - Accept Connection log Warn that Migration is not enabled
+		// Migration Feature exists here to avoid prediction client failing
+		log.Warnln("Migration Feature is disabled: enable using migrate=true")
+
 	}
 }
