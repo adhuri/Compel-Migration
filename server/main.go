@@ -45,18 +45,20 @@ func main() {
 
 	immovableContainers := flag.String("immovable", "", "Comma seperated container IDs of immovable containers eg \"mysql1,mysql2,ff7a945953c7\" ")
 	migrationFeatureStatus := flag.Bool("migrate", false, "true to turn on Migration Feature ")
+	thrashingThreshold := flag.Int64("thrashing", 300, "Thrashing threshold in seconds ")
 
 	flag.Parse()
 
 	log.WithFields(logrus.Fields{
 		"immovable": *immovableContainers,
 		"migrate":   *migrationFeatureStatus,
+		"thrashing": *thrashingThreshold,
 	}).Infoln("Inputs from command line")
 
 	immovableContainersList := strings.Split(*immovableContainers, ",")
 	log.Infoln("Immovable Containers List ", immovableContainersList)
 
-	server = model.NewServer(immovableContainersList)
+	server = model.NewServer(immovableContainersList, *thrashingThreshold)
 
 	// Testing thrashing
 	//server.SetPreviousContainerMigrationTime("container41", time.Now().Unix())

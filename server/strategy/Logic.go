@@ -18,7 +18,7 @@ func CheckIfMigrationTrashing(containerID string, server *model.Server, log *log
 	// Fetch Timestamp  from server object
 	//Unix Time stamps are number of seconds
 
-	thresholdThrashing := int64(60 * 5) //5 minutes interval between thrashing
+	thresholdThrashing := server.GetThrashingThreshold() //5 minutes interval between thrashing
 	secondsElapsed := time.Now().Unix() - server.GetPreviousContainerMigrationTime(containerID)
 	if secondsElapsed < thresholdThrashing {
 		log.Warnln("Thrashing might occur for container ", containerID, " : Migration for this container was done - ", (float32(secondsElapsed / 60.0)), " minutes ago")

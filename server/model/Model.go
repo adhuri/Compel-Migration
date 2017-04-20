@@ -7,13 +7,15 @@ type Server struct {
 	previousMigrationMap    map[string]int64 //timestamp when last migrated to avoid thrashing
 	isMigrating             bool             // To avoid multiple containers migrating at same time CHAOS
 	immovableContainersList []string
+	thrashingThreshold      int64
 }
 
-func NewServer(immovableContainersList []string) *Server {
+func NewServer(immovableContainersList []string, threshold int64) *Server {
 	return &Server{
 		previousMigrationMap:    make(map[string]int64),
 		isMigrating:             false,
 		immovableContainersList: immovableContainersList,
+		thrashingThreshold:      threshold,
 	}
 }
 
@@ -56,4 +58,10 @@ func (server *Server) CheckIfContainerIsMovable(containerId string) bool {
 	}
 
 	return true
+}
+
+func (server *Server) GetThrashingThreshold() int64 {
+	server.RLock()
+	defer server.RUnlock()
+	return server.thrashingThreshold
 }
