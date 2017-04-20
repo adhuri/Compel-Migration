@@ -8,6 +8,22 @@ type Server struct {
 	isMigrating             bool             // To avoid multiple containers migrating at same time CHAOS
 	immovableContainersList []string
 	thrashingThreshold      int64
+	cpufp                   int64
+	memfp                   int64
+	falsePositiveMap        map[string]*FalsePositive // Check false positives before accepting decision of migrating
+}
+
+// To handle False Positives
+type FalsePositive struct {
+	cpuCount int64
+	memCount int64
+}
+
+func NewFalsePositive() *FalsePositive {
+	return &FalsePositive{
+		cpuCount: 0,
+		memCount: 0,
+	}
 }
 
 func NewServer(immovableContainersList []string, threshold int64) *Server {
@@ -16,6 +32,7 @@ func NewServer(immovableContainersList []string, threshold int64) *Server {
 		isMigrating:             false,
 		immovableContainersList: immovableContainersList,
 		thrashingThreshold:      threshold,
+		falsePositiveMap:        make(map[string]*FalsePositive),
 	}
 }
 
@@ -64,4 +81,38 @@ func (server *Server) GetThrashingThreshold() int64 {
 	server.RLock()
 	defer server.RUnlock()
 	return server.thrashingThreshold
+}
+
+func (server *Server) ResetFalsePositive(containerID string) {
+	server.Lock()
+	defer server.Unlock()
+
+	server.falsePositiveMap[containerID] = NewFalsePositive()
+}
+
+func (server *Server) incrementFalsePositive(containerID string, metric string) {
+	server.Lock()
+	defer server.Unlock()
+
+	switch metric {
+	case "cpu":
+		server.falsePositiveMap[containerID].cpuCount++
+	case "memory":
+		server.falsePositiveMap[containerID].memCount++
+
+	}
+}
+
+func (server *Server) GetFalsePositive(containerID string, metric string) int64 {
+	server.RLock()
+	defer server.RUnlock()
+
+	switch metric {
+	case "cpu":
+		return server.falsePositiveMap[containerID].cpuCount
+	case "memory":
+		return server.falsePositiveMap[containerID].memCount
+
+	}
+	return 0
 }

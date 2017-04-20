@@ -46,6 +46,8 @@ func main() {
 	immovableContainers := flag.String("immovable", "", "Comma seperated container IDs of immovable containers eg \"mysql1,mysql2,ff7a945953c7\" ")
 	migrationFeatureStatus := flag.Bool("migrate", false, "true to turn on Migration Feature ")
 	thrashingThreshold := flag.Int64("thrashing", 300, "Thrashing threshold in seconds ")
+	cpuFalsePositiveThreshold := flag.Int64("cpufp", 3, "Use a counter to specify the number of time false positives due to CPU accepted")
+	memoryFalsePositiveThreshold := flag.Int64("memfp", 1, "Use a counter to specify the number of time false positives due to Memory accepted")
 
 	flag.Parse()
 
@@ -53,12 +55,14 @@ func main() {
 		"immovable": *immovableContainers,
 		"migrate":   *migrationFeatureStatus,
 		"thrashing": *thrashingThreshold,
+		"cpufp":     *cpuFalsePositiveThreshold,
+		"memfp":     *memoryFalsePositiveThreshold,
 	}).Infoln("Inputs from command line")
 
 	immovableContainersList := strings.Split(*immovableContainers, ",")
 	log.Infoln("Immovable Containers List ", immovableContainersList)
 
-	server = model.NewServer(immovableContainersList, *thrashingThreshold)
+	server = model.NewServer(immovableContainersList, *thrashingThreshold, *cpuFalsePositiveThreshold, *memoryFalsePositiveThreshold)
 
 	// Testing thrashing
 	//server.SetPreviousContainerMigrationTime("container41", time.Now().Unix())
