@@ -30,6 +30,18 @@ if parsed_json['Config']['Cmd'] != None:
     for k in parsed_json['Config']['Cmd']:
         #k = k.replace("=", " ")
         print "CMD " + k
-print(parsed_json['Config']['ExposedPorts'])
-print(parsed_json['Config']['Entrypoint'])
-print(parsed_json['NetworkSettings']['Ports'])
+#print(parsed_json['Config']['ExposedPorts'])
+if parsed_json['Config']['ExposedPorts'] != None :
+    for k in parsed_json['Config']['ExposedPorts']:
+        #k = k.replace("=", " ")
+        print "EXPOSE " + k
+#print(parsed_json['Config']['Entrypoint'])
+if parsed_json['Config']['Entrypoint'] != None :
+    for k in parsed_json['Config']['Entrypoint']:
+        #k = k.replace("=", " ")
+        print "ENTRYPOINT " + k
+#print(parsed_json['NetworkSettings']['Ports'])
+if parsed_json['NetworkSettings']['Ports'] != None:
+    for k in parsed_json['NetworkSettings']['Ports']:
+        if parsed_json['NetworkSettings']['Ports'][k] != None:
+            print "-p "+parsed_json['NetworkSettings']['Ports'][k][0]['HostPort']+":"+k[0:k.index("/")]
