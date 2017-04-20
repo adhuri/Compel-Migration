@@ -8,6 +8,14 @@ CoMPeL is a framework which  Monitors resource utilization of a container, predi
 3. Configuration to use number of minimum decisions before migration happens for all metrics [cpu,memory]
 4. Choose max,avg value of the datapoints to consider to decide migration
 
+## Implementation Strength
+
+1. Chooses a candidate for migration and performs further checks - if System already in migration , avoid FalsePositives, Avoid Migration Thrashing.
+
+## Implementation Limitation
+
+1. Chooses only one candidate for migration and performs the checks..This limitation decreases the complexity that might occur due to parallelism.
+ 
 
 ## Message structure
 ### 1. Prediction-> Migration 
