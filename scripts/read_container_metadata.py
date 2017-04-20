@@ -21,13 +21,15 @@ print json_string[1:-2]
 parsed_json = json.loads(json_string[4:-3])
 
 #print(parsed_json['Config']['Env'])
-for k in parsed_json['Config']['Env']:
-    k = k.replace("=", " ")
-    print "ENV " + k
+if parsed_json['Config']['Env'] != None:
+    for k in parsed_json['Config']['Env']:
+        k = k.replace("=", " ")
+        print "ENV " + k
 #print(parsed_json['Config']['Cmd'])
-for k in parsed_json['Config']['Cmd']:
-    #k = k.replace("=", " ")
-    print "CMD " + k
+if parsed_json['Config']['Cmd'] != None:
+    for k in parsed_json['Config']['Cmd']:
+        #k = k.replace("=", " ")
+        print "CMD " + k
 print(parsed_json['Config']['ExposedPorts'])
 print(parsed_json['Config']['Entrypoint'])
 print(parsed_json['NetworkSettings']['Ports'])
