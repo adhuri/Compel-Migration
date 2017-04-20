@@ -5,13 +5,13 @@ import "sync"
 type Server struct {
 	sync.RWMutex
 	previousMigrationMap map[string]int64 //timestamp when last migrated to avoid thrashing
-	migrationStatus      map[string]bool  // To avoid duplicate migration requests
+	isMigrating          bool             // To avoid multiple containers migrating at same time CHAOS
 }
 
 func NewServer() *Server {
 	return &Server{
 		previousMigrationMap: make(map[string]int64),
-		migrationStatus:      make(map[string]bool),
+		isMigrating:          false,
 	}
 }
 
@@ -25,20 +25,16 @@ func (server *Server) GetPreviousContainerMigrationTime(containerId string) int6
 	return 0
 }
 
-func (server *Server) GetContainerMigrationStatus(containerId string) bool {
+func (server *Server) GetMigrationStatus() bool {
 	server.RLock()
 	defer server.RUnlock()
-	status, present := server.migrationStatus[containerId]
-	if present {
-		return status
-	}
-	return false
+	return server.isMigrating
 }
 
-func (server *Server) SetContainerMigrationStatus(containerId string, status bool) {
+func (server *Server) SetMigrationStatus(status bool) {
 	server.Lock()
 	defer server.Unlock()
-	server.migrationStatus[containerId] = status
+	server.isMigrating = status
 }
 
 func (server *Server) SetPreviousContainerMigrationTime(containerId string, timestamp int64) {

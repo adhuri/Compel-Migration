@@ -10,61 +10,63 @@ type Bucket struct {
 }
 
 type Container struct {
-	ContainerID string
-	CPUValue    float32
-	MemValue    float32
+	ContainerID     string
+	CPUValue        float32
+	MemValue        float32
+	staticContainer bool
 }
 
 func NewBucket(AgentIP string) *Bucket {
 	return &Bucket{
 		AgentIP:          AgentIP,
-		PseudoFreeCPU:    -1.0,
-		PseudoFreeMemory: -1.0,
+		PseudoFreeCPU:    999.0, // 999 Free CPU not possible
+		PseudoFreeMemory: 999.0, // 999 Free Memory not possible
 		ContainerDetails: make([]*Container, 0),
 	}
 }
 
 func NewContainer(ContainerID string, CPUValue float32, MemValue float32) *Container {
 	return &Container{
-		ContainerID: ContainerID,
-		CPUValue:    CPUValue,
-		MemValue:    MemValue,
+		ContainerID:     ContainerID,
+		CPUValue:        CPUValue,
+		MemValue:        MemValue,
+		staticContainer: false,
 	}
 }
 
 func (m *Bucket) GetFreeCPU() float32 {
-	totalCPU := float32(100.0)
-	freeCPU := float32(0.0)
-	for _, container := range m.ContainerDetails {
-		freeCPU += container.CPUValue
+
+	if m.PseudoFreeCPU == 999.0 {
+		freeCPU := float32(100.0)
+
+		for _, container := range m.ContainerDetails {
+			freeCPU -= container.CPUValue
+		}
+		m.PseudoFreeCPU = freeCPU
 	}
-	return totalCPU - freeCPU
+	return m.PseudoFreeCPU
 }
 
 func (m *Bucket) GetFreeMemory() float32 {
-	totalMem := float32(0.0)
-	freeMem := float32(0.0)
-	for _, container := range m.ContainerDetails {
-		freeMem += container.MemValue
+
+	if m.PseudoFreeMemory == 999.0 {
+
+		freeMem := float32(100.0)
+		for _, container := range m.ContainerDetails {
+			freeMem -= container.MemValue
+		}
+		m.PseudoFreeMemory = freeMem
 	}
-	return totalMem - freeMem
+	return m.PseudoFreeMemory
 }
 
 func (m *Bucket) PrintBucket(log *logrus.Logger) {
 	log.Infoln("Agent IP ", m.AgentIP)
 	log.Infoln("Total Containers ", len(m.ContainerDetails))
-	if m.PseudoFreeCPU == -1.0 {
-		log.Infoln("Free CPU ", m.GetFreeCPU())
-	} else {
-		log.Infoln("Free CPU ", m.PseudoFreeCPU)
-	}
 
-	if m.PseudoFreeMemory == -1.0 {
-		log.Infoln("Free Memory ", m.GetFreeMemory())
-	} else {
-		log.Infoln("Free Memory ", m.PseudoFreeMemory)
+	log.Infoln("Free CPU ", m.PseudoFreeCPU)
+	log.Infoln("Free Memory ", m.PseudoFreeMemory)
 
-	}
 	for containerIndex, container := range m.ContainerDetails {
 		log.Infoln("Container ", containerIndex, " : ContainerID ", container.ContainerID)
 	}
