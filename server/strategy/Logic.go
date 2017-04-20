@@ -44,6 +44,8 @@ func metricDecision(metric string, buckets []*Bucket, server *model.Server, log 
 						// Check if container static or if we cannot move
 						if !containeri.movableContainer || (bucketk.GetValue(metric)-containeri.GetValue(metric)) < 0 {
 							// Cannot Move this container container i
+							log.Debugln(metric, " Decision : Immovable Container ", containeri.ContainerID, " cannot be moved since it is configured immovable")
+
 							continue
 						} else {
 							// Move containiner Ci to agent k
@@ -73,6 +75,7 @@ func metricDecision(metric string, buckets []*Bucket, server *model.Server, log 
 			for _, containerj := range buckets[bucketIndexj].ContainerDetails {
 				if !containerj.movableContainer || (bucketi.GetValue(metric)-containerj.GetValue(metric)) < 0 {
 					// Container j cannot be moved
+					log.Debugln(metric, " Decision : Immovable Container ", containerj.ContainerID, " cannot be moved since it is configured immovable")
 					continue
 				} else {
 					// Move containiner Cj to agent i

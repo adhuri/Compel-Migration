@@ -67,7 +67,7 @@ func twoHostsScenario(isMySQLStatic bool) *protocol.PredictionData {
 
 	agentIP2 := "10.10.4.1"
 
-	containerInfo3 := protocol.NewContainerInfo("rubis", cpuPredictions2, memoryPredictions3)
+	containerInfo3 := protocol.NewContainerInfo("rubis", cpuPredictions2, memoryPredictions2)
 
 	containerData2 := []protocol.ContainerInfo{*containerInfo3}
 

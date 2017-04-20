@@ -29,12 +29,12 @@ func NewBucket(AgentIP string) *Bucket {
 	}
 }
 
-func NewContainer(ContainerID string, CPUValue float32, MemValue float32) *Container {
+func NewContainer(ContainerID string, CPUValue float32, MemValue float32, movableStatus bool) *Container {
 	return &Container{
 		ContainerID:      ContainerID,
 		CPUValue:         CPUValue,
 		MemValue:         MemValue,
-		movableContainer: true,
+		movableContainer: movableStatus,
 	}
 }
 
@@ -92,7 +92,7 @@ func (m *Bucket) PrintBucket(log *logrus.Logger) {
 	log.Infoln("Free Memory ", m.GetFreeMemory())
 
 	for containerIndex, container := range m.ContainerDetails {
-		log.Infoln("Container ", containerIndex, " : ContainerID ", container.ContainerID, " : CPU ", container.GetValue("cpu"), " : Memory ", container.GetValue("memory"))
+		log.Infoln("Container ", containerIndex, " : ContainerID ", container.ContainerID, " : CPU ", container.GetValue("cpu"), " : Memory ", container.GetValue("memory"), ": Movable Container ", container.movableContainer)
 	}
 }
 

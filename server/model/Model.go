@@ -4,14 +4,16 @@ import "sync"
 
 type Server struct {
 	sync.RWMutex
-	previousMigrationMap map[string]int64 //timestamp when last migrated to avoid thrashing
-	isMigrating          bool             // To avoid multiple containers migrating at same time CHAOS
+	previousMigrationMap    map[string]int64 //timestamp when last migrated to avoid thrashing
+	isMigrating             bool             // To avoid multiple containers migrating at same time CHAOS
+	immovableContainersList []string
 }
 
-func NewServer() *Server {
+func NewServer(immovableContainersList []string) *Server {
 	return &Server{
-		previousMigrationMap: make(map[string]int64),
-		isMigrating:          false,
+		previousMigrationMap:    make(map[string]int64),
+		isMigrating:             false,
+		immovableContainersList: immovableContainersList,
 	}
 }
 
@@ -41,4 +43,17 @@ func (server *Server) SetPreviousContainerMigrationTime(containerId string, time
 	server.Lock()
 	defer server.Unlock()
 	server.previousMigrationMap[containerId] = timestamp
+}
+
+func (server *Server) CheckIfContainerIsMovable(containerId string) bool {
+	server.RLock()
+	defer server.RUnlock()
+
+	for _, immovableContainer := range server.immovableContainersList {
+		if immovableContainer == containerId {
+			return false
+		}
+	}
+
+	return true
 }

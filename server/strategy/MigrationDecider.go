@@ -24,7 +24,9 @@ func MigrationNeeded(predictionData *protocol.PredictionData, server *model.Serv
 			cpuAverage := calculateValue(container.CPU)
 			memAverage := calculateValue(container.Memory)
 
-			newContainer := NewContainer(container.ContainerId, cpuAverage, memAverage)
+			movableStatus := server.CheckIfContainerIsMovable(container.ContainerId)
+
+			newContainer := NewContainer(container.ContainerId, cpuAverage, memAverage, movableStatus)
 			newBucket.ContainerDetails = append(newBucket.ContainerDetails, newContainer)
 		}
 		// Add newBucket to Buckets list
@@ -47,32 +49,32 @@ func migrationDecision(buckets []*Bucket, server *model.Server, log *logrus.Logg
 	case 1:
 		log.Warnln("Only one host running , migration not possible ")
 	default:
-		log.Infoln("Migration for ", len(buckets), "started ....")
+		log.Infoln("Migration for Number of hosts : ", len(buckets), "started ....")
 	}
 
 	memoryFlag, memoryCheckpointRequest := metricDecision("memory", buckets, server, log)
 	if memoryFlag {
 		if !server.GetMigrationStatus() {
 			// If Not Migrating any container
-			log.Debugln("Memory Decision : Server is not migrating - Considering request for migration")
+			log.Debugln("memory Decision : Server is not migrating - Considering request for migration")
 			if !CheckIfFalsePositive(memoryCheckpointRequest.ContainerID, server) {
 				// Check if set Threshold is crossed to avoid false positives
-				log.Debugln("Memory Decision : Configured Threshold for memory crossed ,not false positive - Considering request for migration")
+				log.Debugln("memory Decision : Configured Threshold for memory crossed ,not false positive - Considering request for migration")
 				if !CheckIfMigrationTrashing(memoryCheckpointRequest.ContainerID, server) {
 					// If system is not thrashingDecision
-					log.Debugln("Memory Decision : Migration is not trashing - Considering request for migration")
+					log.Debugln("memory Decision : Migration is not trashing - Considering request for migration")
 					return true, memoryCheckpointRequest
 				} else {
-					log.Debugln("Memory Decision : Migration is trashing , Last migration done recently - Cannot Migrate")
+					log.Debugln("memory Decision : Migration is trashing , Last migration done recently - Cannot Migrate")
 
 				}
 
 			} else {
-				log.Errorln("Memory Decision : Configured Threshold for memory not crossed, probably false positive - Cannot Migrate")
+				log.Errorln("memory Decision : Configured Threshold for memory not crossed, probably false positive - Cannot Migrate")
 
 			}
 		} else {
-			log.Errorln("Memory Decision : Previous Migration is in progress - Cannot Migrate to avoid CHAOS")
+			log.Errorln("memory Decision : Previous Migration is in progress - Cannot Migrate to avoid CHAOS")
 		}
 	}
 
@@ -82,25 +84,25 @@ func migrationDecision(buckets []*Bucket, server *model.Server, log *logrus.Logg
 	if cpuFlag {
 		if !server.GetMigrationStatus() {
 			// If Not Migrating any container
-			log.Debugln("CPU Decision : Server is not migrating - Considering request for migration")
+			log.Debugln("cpu Decision : Server is not migrating - Considering request for migration")
 			if !CheckIfFalsePositive(cpuCheckpointRequest.ContainerID, server) {
 				// Check if set Threshold is crossed to avoid false positives
-				log.Debugln("CPU Decision : Configured Threshold for CPU crossed ,not false positive - Considering request for migration")
+				log.Debugln("cpu Decision : Configured Threshold for CPU crossed ,not false positive - Considering request for migration")
 				if !CheckIfMigrationTrashing(cpuCheckpointRequest.ContainerID, server) {
 					// If system is not thrashingDecision
-					log.Debugln("CPU Decision : Migration is not trashing - Considering request for migration")
+					log.Debugln("cpu Decision : Migration is not trashing - Considering request for migration")
 					return true, cpuCheckpointRequest
 				} else {
-					log.Debugln("CPU Decision : Migration is trashing , Last migration done recently - Cannot Migrate")
+					log.Debugln("cpu Decision : Migration is trashing , Last migration done recently - Cannot Migrate")
 
 				}
 
 			} else {
-				log.Errorln("CPU Decision : Configured Threshold for memory not crossed, probably false positive - Cannot Migrate")
+				log.Errorln("cpu Decision : Configured Threshold for memory not crossed, probably false positive - Cannot Migrate")
 
 			}
 		} else {
-			log.Errorln("CPU Decision : Previous Migration is in progress - Cannot Migrate to avoid CHAOS")
+			log.Errorln("cpu Decision : Previous Migration is in progress - Cannot Migrate to avoid CHAOS")
 		}
 	}
 

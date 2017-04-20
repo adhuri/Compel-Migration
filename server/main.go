@@ -2,9 +2,11 @@ package main
 
 import (
 	"encoding/gob"
+	"flag"
 	"net"
 	"os"
 	"strconv"
+	"strings"
 	"sync"
 
 	"github.com/Sirupsen/logrus"
@@ -40,7 +42,17 @@ func init() {
 func main() {
 	// tcp listener
 
-	server = model.NewServer()
+	immovableContainers := flag.String("immovable", "", "Comma seperated container IDs of immovable containers eg \"mysql1,mysql2,ff7a945953c7\" ")
+	flag.Parse()
+
+	log.WithFields(logrus.Fields{
+		"immovable": *immovableContainers,
+	}).Infoln("Inputs from command line")
+
+	immovableContainersList := strings.Split(*immovableContainers, ",")
+	log.Infoln("Immovable Containers List ", immovableContainersList)
+
+	server = model.NewServer(immovableContainersList)
 
 	var wg sync.WaitGroup
 	wg.Add(1)
