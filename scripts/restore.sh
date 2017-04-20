@@ -38,7 +38,7 @@ while read -r line
 do
     value="$line"
     if [[ $value == *"ENV"* ]] || [[ $value == *"CMD"* ]] || [[ $value == *"EXPOSE"* ]] || [[ $value == *"ENTRYPOINT"* ]]; then
-        # METADATA used to import the image 
+        # METADATA used to import the image
         ARGS="$ARGS --change \"$value\""
     else
       if [[ $value == *"-p"* ]]; then
@@ -53,9 +53,13 @@ done < "$filename"
 
 
 # Importing the tar line by line
+start=`date +%s%3N`
 TAR_NAME="/home/$USER/$CHECKPOINT_NAME.tar"
 DOCKER_IMPORT_COMMAND="docker import $ARGS $TAR_NAME"
 IMAGE=$(eval $DOCKER_IMPORT_COMMAND)
+end=`date +%s%3N`
+runtime=$((end-start))
+echo "Docker Image Importing took : $runtime milliseconds"
 
 
 # Trimming the image name because output of previous command can't be directly used
@@ -63,11 +67,18 @@ IMAGE_NAME=${IMAGE##*:}
 
 
 # Create a new Docker container by the same name as the original container
+start=`date +%s%N`
 DOCKER_CREATE_COMMAND="docker create --name $CONTAINER_NAME $PORT_MAPPING  $IMAGE_NAME"
 eval $DOCKER_CREATE_COMMAND
-
+end=`date +%s%N`
+runtime=$((end-start))
+echo "Docker Container Creation took : $runtime nanoseconds"
 
 # Restore the container
+start=`date +%s%3N`
 DIRECTORY="/home/$USER/checkpoint"
 DOCKER_RESTORE_COMMAND="docker start --checkpoint $CHECKPOINT_NAME --checkpoint-dir=\"$DIRECTORY\" $CONTAINER_NAME"
 eval $DOCKER_RESTORE_COMMAND
+end=`date +%s%3N`
+runtime=$((end-start))
+echo "Docker Container Restoration took : $runtime milliseconds"
