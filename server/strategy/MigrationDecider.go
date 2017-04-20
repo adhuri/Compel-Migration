@@ -60,7 +60,7 @@ func migrationDecision(buckets []*Bucket, server *model.Server, log *logrus.Logg
 			if !CheckIfFalsePositive(memoryCheckpointRequest.ContainerID, server) {
 				// Check if set Threshold is crossed to avoid false positives
 				log.Debugln("memory Decision : Configured Threshold for memory crossed ,not false positive - Considering request for migration")
-				if !CheckIfMigrationTrashing(memoryCheckpointRequest.ContainerID, server) {
+				if !CheckIfMigrationTrashing(memoryCheckpointRequest.ContainerID, server, log) {
 					// If system is not thrashingDecision
 					log.Debugln("memory Decision : Migration is not trashing - Considering request for migration")
 					return true, memoryCheckpointRequest
@@ -88,7 +88,7 @@ func migrationDecision(buckets []*Bucket, server *model.Server, log *logrus.Logg
 			if !CheckIfFalsePositive(cpuCheckpointRequest.ContainerID, server) {
 				// Check if set Threshold is crossed to avoid false positives
 				log.Debugln("cpu Decision : Configured Threshold for CPU crossed ,not false positive - Considering request for migration")
-				if !CheckIfMigrationTrashing(cpuCheckpointRequest.ContainerID, server) {
+				if !CheckIfMigrationTrashing(cpuCheckpointRequest.ContainerID, server, log) {
 					// If system is not thrashingDecision
 					log.Debugln("cpu Decision : Migration is not trashing - Considering request for migration")
 					return true, cpuCheckpointRequest

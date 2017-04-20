@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/Sirupsen/logrus"
 
@@ -56,6 +57,10 @@ func main() {
 	log.Infoln("Immovable Containers List ", immovableContainersList)
 
 	server = model.NewServer(immovableContainersList)
+
+	// Testing thrashing
+	//server.SetPreviousContainerMigrationTime("container41", time.Now().Unix())
+	// End
 
 	var wg sync.WaitGroup
 	wg.Add(1)
@@ -112,6 +117,9 @@ func handlePredictionDataMessage(conn net.Conn, server *model.Server) {
 			return
 		}
 		log.Infoln("Migration Was Success")
+		// Log previous migration time if successful
+		server.SetPreviousContainerMigrationTime(migrationInfo.ContainerID, time.Now().Unix())
+
 	} else {
 		log.Infoln("Migration Was Not Needed")
 	}

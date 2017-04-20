@@ -14,8 +14,17 @@ func CheckIfFalsePositive(containerID string, server *model.Server) bool {
 	return false
 }
 
-func CheckIfMigrationTrashing(containerID string, server *model.Server) bool {
+func CheckIfMigrationTrashing(containerID string, server *model.Server, log *logrus.Logger) bool {
 	// Fetch Timestamp  from server object
+	//Unix Time stamps are number of seconds
+
+	thresholdThrashing := int64(60 * 5) //5 minutes interval between thrashing
+	secondsElapsed := time.Now().Unix() - server.GetPreviousContainerMigrationTime(containerID)
+	if secondsElapsed < thresholdThrashing {
+		log.Warnln("Thrashing might occur for container ", containerID, " : Migration for this container was done - ", (float32(secondsElapsed / 60.0)), " minutes ago")
+		return true
+	}
+
 	return false
 }
 
@@ -23,8 +32,8 @@ func metricDecision(metric string, buckets []*Bucket, server *model.Server, log 
 	// We handle Two main cases when
 	// a ) some agents have -ve free memory due to prediction
 	// b )all agents have  + ve free due to predicition
-
-	timestamp := strconv.FormatInt(time.Now().Unix(), 10)
+	unixTimestamp := time.Now().Unix()
+	timestamp := strconv.FormatInt(unixTimestamp, 10)
 	sortBucketsAsc(buckets, metric) // In place sort
 
 	//For all values in buckets i to j
