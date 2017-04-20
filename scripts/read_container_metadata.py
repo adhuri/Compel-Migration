@@ -15,7 +15,7 @@ import subprocess
 
 proc = subprocess.Popen(["docker inspect "+containerName], stdout=subprocess.PIPE, shell=True)
 (json_string, err) = proc.communicate()
-print json_string[1:-2]
+#print json_string[1:-2]
 
 
 parsed_json = json.loads(json_string[4:-3])
