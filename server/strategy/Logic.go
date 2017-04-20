@@ -42,7 +42,7 @@ func metricDecision(metric string, buckets []*Bucket, server *model.Server, log 
 					// For each container on i
 					for _, containeri := range bucketi.ContainerDetails {
 						// Check if container static or if we cannot move
-						if containeri.staticContainer || (bucketk.GetValue(metric)-containeri.GetValue(metric)) < 0 {
+						if !containeri.movableContainer || (bucketk.GetValue(metric)-containeri.GetValue(metric)) < 0 {
 							// Cannot Move this container container i
 							continue
 						} else {
@@ -71,7 +71,7 @@ func metricDecision(metric string, buckets []*Bucket, server *model.Server, log 
 			sortContainersDesc(buckets[bucketIndexj].ContainerDetails, metric)
 			// Sorted  containers in bucket j
 			for _, containerj := range buckets[bucketIndexj].ContainerDetails {
-				if containerj.staticContainer || (bucketi.GetValue(metric)-containerj.GetValue(metric)) < 0 {
+				if !containerj.movableContainer || (bucketi.GetValue(metric)-containerj.GetValue(metric)) < 0 {
 					// Container j cannot be moved
 					continue
 				} else {

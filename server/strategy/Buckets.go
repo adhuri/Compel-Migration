@@ -14,10 +14,10 @@ type Bucket struct {
 }
 
 type Container struct {
-	ContainerID     string
-	CPUValue        float32
-	MemValue        float32
-	staticContainer bool
+	ContainerID      string
+	CPUValue         float32
+	MemValue         float32
+	movableContainer bool
 }
 
 func NewBucket(AgentIP string) *Bucket {
@@ -31,10 +31,10 @@ func NewBucket(AgentIP string) *Bucket {
 
 func NewContainer(ContainerID string, CPUValue float32, MemValue float32) *Container {
 	return &Container{
-		ContainerID:     ContainerID,
-		CPUValue:        CPUValue,
-		MemValue:        MemValue,
-		staticContainer: false,
+		ContainerID:      ContainerID,
+		CPUValue:         CPUValue,
+		MemValue:         MemValue,
+		movableContainer: true,
 	}
 }
 
