@@ -52,4 +52,9 @@ echo "$CONTAINER_NAME"
 echo "$PORT_MAPPING "
 
 TAR_NAME="/home/$USER/$CHECKPOINT_NAME.tar"
-IMAGE=`docker import $ARGS $TAR_NAME`
+echo $TAR_NAME
+DOCKER_IMPORT_COMMAND="docker import $ARGS $TAR_NAME"
+#eval $IMAGE
+IMAGE=$(eval $DOCKER_IMPORT_COMMAND)
+#c=${!IMAGE}
+echo "IMAGE NAME: $IMAGE"
