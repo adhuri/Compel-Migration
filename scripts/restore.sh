@@ -25,47 +25,49 @@ while [ $# -gt 0 ]; do
 	shift
 done
 
+
+# Initializing Variables to use in future
 ARGS=""
 PORT_MAPPING=""
 CONTAINER_NAME=""
 filename="/home/$USER/${CONTAINER_ID}_metadata.conf"
+
+
+# Read Metadata file line by line
 while read -r line
 do
     value="$line"
     if [[ $value == *"ENV"* ]] || [[ $value == *"CMD"* ]] || [[ $value == *"EXPOSE"* ]] || [[ $value == *"ENTRYPOINT"* ]]; then
-        #echo "It's there! : $value"
+        # METADATA used to import the image 
         ARGS="$ARGS --change \"$value\""
     else
       if [[ $value == *"-p"* ]]; then
-        #echo "PORT arguments : $value"
+        # PORT_MAPPING
         PORT_MAPPING=$value
       else
-        #echo "CONTAINER NAME : $value"
+        # CONTAINER_NAME
         CONTAINER_NAME=$value
       fi
     fi
-    #echo "Name read from file - $name"
 done < "$filename"
 
-#echo "$ARGS"
-#echo "$CONTAINER_NAME"
-#echo "$PORT_MAPPING "
 
+# Importing the tar line by line
 TAR_NAME="/home/$USER/$CHECKPOINT_NAME.tar"
-#echo $TAR_NAME
 DOCKER_IMPORT_COMMAND="docker import $ARGS $TAR_NAME"
-#eval $IMAGE
 IMAGE=$(eval $DOCKER_IMPORT_COMMAND)
-#c=${!IMAGE}
-#echo "IMAGE NAME: $IMAGE"
-#echo ${IMAGE##*:}
 
+
+# Trimming the image name because output of previous command can't be directly used
 IMAGE_NAME=${IMAGE##*:}
-echo $IMAGE_NAME
 
+
+# Create a new Docker container by the same name as the original container
 DOCKER_CREATE_COMMAND="docker create --name $CONTAINER_NAME $PORT_MAPPING  $IMAGE_NAME"
 eval $DOCKER_CREATE_COMMAND
 
+
+# Restore the container
 DIRECTORY="/home/$USER/checkpoint"
 DOCKER_RESTORE_COMMAND="docker start --checkpoint $CHECKPOINT_NAME --checkpoint-dir=\"$DIRECTORY\" $CONTAINER_NAME"
-eval DOCKER_RESTORE_COMMAND
+eval $DOCKER_RESTORE_COMMAND
