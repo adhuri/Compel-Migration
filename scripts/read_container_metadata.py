@@ -36,6 +36,11 @@ parsed_json = simplejson.loads(json_string[4:-3])
 f = open('/home/'+userName+'/'+containerName+'_metadata.conf', 'w')
 
 
+## Container Name for Restore
+Container_Name = parsed_json['Name'][1:]
+f.write(Container_Name+"\n")
+
+
 ## Parse ENV variables
 #print(parsed_json['Config']['Env'])
 if parsed_json['Config']['Env'] != None:
