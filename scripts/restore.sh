@@ -34,7 +34,7 @@ do
     value="$line"
     if [[ $value == *"ENV"* ]] || [[ $value == *"CMD"* ]] || [[ $value == *"EXPOSE"* ]] || [[ $value == *"ENTRYPOINT"* ]]; then
         #echo "It's there! : $value"
-        ARGS="$ARGS -change \"$value\""
+        ARGS="$ARGS --change \"$value\""
     else
       if [[ $value == *"-p"* ]]; then
         echo "PORT arguments : $value"
