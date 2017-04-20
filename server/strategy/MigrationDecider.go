@@ -52,60 +52,40 @@ func migrationDecision(buckets []*Bucket, server *model.Server, log *logrus.Logg
 		log.Infoln("Migration for Number of hosts : ", len(buckets), "started ....")
 	}
 
-	memoryFlag, memoryCheckpointRequest := metricDecision("memory", buckets, server, log)
-	if memoryFlag {
+	allMetrics := []string{"memory", "cpu"}
+	for _, metric := range allMetrics {
+		return stagedDecision(metric, buckets, server, log)
+	}
+	return false, &protocol.CheckpointRequest{}
+}
+
+func stagedDecision(metric string, buckets []*Bucket, server *model.Server, log *logrus.Logger) (bool, *protocol.CheckpointRequest) {
+
+	decisionFlag, CheckpointRequest := metricDecision(metric, buckets, server, log)
+	if decisionFlag {
+		// Increment the counter for the False positive Checker
+		server.IncrementFalsePositive(CheckpointRequest.ContainerID, metric)
+
 		if !server.GetMigrationStatus() {
 			// If Not Migrating any container
-			log.Debugln("memory Decision : Server is not migrating - Considering request for migration")
-			if !CheckIfFalsePositive(memoryCheckpointRequest.ContainerID, server) {
+			log.Debugln(metric, "Decision : Server is not migrating - Considering request for migration")
+			if !CheckIfFalsePositive(metric, CheckpointRequest.ContainerID, server, log) {
 				// Check if set Threshold is crossed to avoid false positives
-				log.Debugln("memory Decision : Configured Threshold for memory crossed ,not false positive - Considering request for migration")
-				if !CheckIfMigrationTrashing(memoryCheckpointRequest.ContainerID, server, log) {
+				log.Debugln(metric, "Decision : Configured Threshold for ", metric, " crossed ,not false positive - Considering request for migration")
+				if !CheckIfMigrationTrashing(CheckpointRequest.ContainerID, server, log) {
 					// If system is not thrashingDecision
-					log.Debugln("memory Decision : Migration is not trashing - Considering request for migration")
-					return true, memoryCheckpointRequest
+					log.Debugln(metric, "Decision : Migration is not trashing - Considering request for migration")
+					return true, CheckpointRequest
 				} else {
-					log.Debugln("memory Decision : Migration is trashing , Last migration done recently - Cannot Migrate")
-
+					log.Debugln(metric, "Decision : Migration is trashing , Last migration done recently - Cannot Migrate")
 				}
-
 			} else {
-				log.Errorln("memory Decision : Configured Threshold for memory not crossed, probably false positive - Cannot Migrate")
+				log.Warnln(metric, " Decision : Configured Threshold for memory not crossed, probably false positive - Cannot Migrate")
 
 			}
 		} else {
 			log.Errorln("memory Decision : Previous Migration is in progress - Cannot Migrate to avoid CHAOS")
 		}
 	}
-
-	// CPU decision
-
-	cpuFlag, cpuCheckpointRequest := metricDecision("cpu", buckets, server, log)
-	if cpuFlag {
-		if !server.GetMigrationStatus() {
-			// If Not Migrating any container
-			log.Debugln("cpu Decision : Server is not migrating - Considering request for migration")
-			if !CheckIfFalsePositive(cpuCheckpointRequest.ContainerID, server) {
-				// Check if set Threshold is crossed to avoid false positives
-				log.Debugln("cpu Decision : Configured Threshold for CPU crossed ,not false positive - Considering request for migration")
-				if !CheckIfMigrationTrashing(cpuCheckpointRequest.ContainerID, server, log) {
-					// If system is not thrashingDecision
-					log.Debugln("cpu Decision : Migration is not trashing - Considering request for migration")
-					return true, cpuCheckpointRequest
-				} else {
-					log.Debugln("cpu Decision : Migration is trashing , Last migration done recently - Cannot Migrate")
-
-				}
-
-			} else {
-				log.Errorln("cpu Decision : Configured Threshold for memory not crossed, probably false positive - Cannot Migrate")
-
-			}
-		} else {
-			log.Errorln("cpu Decision : Previous Migration is in progress - Cannot Migrate to avoid CHAOS")
-		}
-	}
-
 	return false, &protocol.CheckpointRequest{}
-
 }

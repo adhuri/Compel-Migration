@@ -9,9 +9,17 @@ import (
 	"github.com/adhuri/Compel-Migration/server/model"
 )
 
-func CheckIfFalsePositive(containerID string, server *model.Server) bool {
+func CheckIfFalsePositive(metric string, containerID string, server *model.Server, log *logrus.Logger) bool {
 	// Fetch Counter  from server object
-	return false
+	threshold := server.GetFalsePositiveThreshold(containerID, metric)
+	currentCount := server.GetFalsePositiveMap(containerID, metric)
+	log.Debugln("CheckIfFalsePositive : Current count for containerID ", containerID, " is ", currentCount, " : Threshold is ", threshold)
+
+	if currentCount >= threshold {
+		return false
+	}
+
+	return true
 }
 
 func CheckIfMigrationTrashing(containerID string, server *model.Server, log *logrus.Logger) bool {

@@ -43,7 +43,7 @@ func init() {
 func main() {
 	// tcp listener
 
-	immovableContainers := flag.String("immovable", "", "Comma seperated container IDs of immovable containers eg \"mysql1,mysql2,ff7a945953c7\" ")
+	immovableContainers := flag.String("immovable", "NA", "Comma seperated container IDs of immovable containers eg \"mysql1,mysql2,ff7a945953c7\" ")
 	migrationFeatureStatus := flag.Bool("migrate", false, "true to turn on Migration Feature ")
 	thrashingThreshold := flag.Int64("thrashing", 300, "Thrashing threshold in seconds ")
 	cpuFalsePositiveThreshold := flag.Int64("cpufp", 3, "Use a counter to specify the number of time false positives due to CPU accepted")
@@ -125,6 +125,10 @@ func handlePredictionDataMessage(conn net.Conn, server *model.Server) {
 		log.Infoln("Migration Was Success")
 		// Log previous migration time if successful
 		server.SetPreviousContainerMigrationTime(migrationInfo.ContainerID, time.Now().Unix())
+
+		// Reset the counters for the containerID
+
+		server.ResetFalsePositive(migrationInfo.ContainerID)
 
 	} else {
 		log.Infoln("Migration Was Not Needed")

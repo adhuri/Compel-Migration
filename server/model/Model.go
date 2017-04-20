@@ -26,12 +26,14 @@ func NewFalsePositive() *FalsePositive {
 	}
 }
 
-func NewServer(immovableContainersList []string, threshold int64) *Server {
+func NewServer(immovableContainersList []string, threshold int64, cpufp int64, memfp int64) *Server {
 	return &Server{
 		previousMigrationMap:    make(map[string]int64),
 		isMigrating:             false,
 		immovableContainersList: immovableContainersList,
 		thrashingThreshold:      threshold,
+		cpufp:                   cpufp,
+		memfp:                   memfp,
 		falsePositiveMap:        make(map[string]*FalsePositive),
 	}
 }
@@ -90,9 +92,14 @@ func (server *Server) ResetFalsePositive(containerID string) {
 	server.falsePositiveMap[containerID] = NewFalsePositive()
 }
 
-func (server *Server) incrementFalsePositive(containerID string, metric string) {
+func (server *Server) IncrementFalsePositive(containerID string, metric string) {
 	server.Lock()
 	defer server.Unlock()
+
+	// Check to see if it is present
+	if present := server.falsePositiveMap[containerID]; present == nil {
+		server.falsePositiveMap[containerID] = NewFalsePositive()
+	}
 
 	switch metric {
 	case "cpu":
@@ -101,17 +108,36 @@ func (server *Server) incrementFalsePositive(containerID string, metric string) 
 		server.falsePositiveMap[containerID].memCount++
 
 	}
+
 }
 
-func (server *Server) GetFalsePositive(containerID string, metric string) int64 {
+func (server *Server) GetFalsePositiveMap(containerID string, metric string) int64 {
 	server.RLock()
 	defer server.RUnlock()
+
+	if present := server.falsePositiveMap[containerID]; present == nil {
+		server.falsePositiveMap[containerID] = NewFalsePositive()
+	}
 
 	switch metric {
 	case "cpu":
 		return server.falsePositiveMap[containerID].cpuCount
 	case "memory":
 		return server.falsePositiveMap[containerID].memCount
+
+	}
+	return 0
+}
+
+func (server *Server) GetFalsePositiveThreshold(containerID string, metric string) int64 {
+	server.RLock()
+	defer server.RUnlock()
+
+	switch metric {
+	case "cpu":
+		return server.cpufp
+	case "memory":
+		return server.memfp
 
 	}
 	return 0
