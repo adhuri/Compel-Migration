@@ -41,7 +41,7 @@ f = open('/home/'+userName+'/'+containerName+'_metadata.conf', 'w')
 if parsed_json['Config']['Env'] != None:
     for k in parsed_json['Config']['Env']:
         k = k.replace("=", " ")
-        f.write("ENV " + k+"\n")
+        f.write(("ENV " + k+"\n").encode("utf-8"))
 
 
 ## Parse CMD command
