@@ -25,7 +25,7 @@ func SendMigrationRequest(request *protocol.CheckpointRequest, server *model.Ser
 		log.Errorln("Failure While Sending Migration Request To Agent" + err.Error())
 		return err
 	}
-	log.Infoln("Migration Request Successfully Sent")
+	log.Infoln("Migration Request Successfully Sent - ", request)
 
 	// read ack from the server
 	agentReply := protocol.CheckpointResponse{}

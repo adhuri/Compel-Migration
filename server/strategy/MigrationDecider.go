@@ -38,7 +38,7 @@ func MigrationNeeded(predictionData *protocol.PredictionData, server *model.Serv
 	return finalDecision, migrationDetails
 }
 
-// Returns Decision if true or false & Checkpoint Request
+// Returns Decision if true or false & Checkpoint Request for Buckets
 func migrationDecision(buckets []*Bucket, server *model.Server, log *logrus.Logger) (bool, *protocol.CheckpointRequest) {
 
 	switch len(buckets) {
