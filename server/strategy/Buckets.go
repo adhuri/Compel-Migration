@@ -74,18 +74,6 @@ func (m *Bucket) GetValue(metric string) float32 {
 	return 999.0
 }
 
-func (m *Bucket) PrintBucket(log *logrus.Logger) {
-	log.Infoln("Agent IP ", m.AgentIP)
-	log.Infoln("Total Containers ", len(m.ContainerDetails))
-
-	log.Infoln("Free CPU ", m.GetFreeCPU())
-	log.Infoln("Free Memory ", m.GetFreeMemory())
-
-	for containerIndex, container := range m.ContainerDetails {
-		log.Infoln("Container ", containerIndex, " : ContainerID ", container.ContainerID)
-	}
-}
-
 func (c *Container) GetValue(metric string) float32 {
 	if metric == "cpu" {
 		return c.CPUValue
@@ -94,6 +82,18 @@ func (c *Container) GetValue(metric string) float32 {
 
 	}
 	return 999.0
+}
+
+func (m *Bucket) PrintBucket(log *logrus.Logger) {
+	log.Infoln("Agent IP ", m.AgentIP)
+	log.Infoln("Total Containers ", len(m.ContainerDetails))
+
+	log.Infoln("Free CPU ", m.GetFreeCPU())
+	log.Infoln("Free Memory ", m.GetFreeMemory())
+
+	for containerIndex, container := range m.ContainerDetails {
+		log.Infoln("Container ", containerIndex, " : ContainerID ", container.ContainerID, " : CPU ", container.GetValue("cpu"), " : Memory ", container.GetValue("memory"))
+	}
 }
 
 func PrintAllBuckets(Buckets []*Bucket, log *logrus.Logger) {
