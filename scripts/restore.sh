@@ -67,10 +67,10 @@ IMAGE_NAME=${IMAGE##*:}
 
 
 # Create a new Docker container by the same name as the original container
-start=`date +%s%N`
-DOCKER_CREATE_COMMAND="docker create --name $CONTAINER_NAME $PORT_MAPPING  $IMAGE_NAME"
+start=`date +%s%3N`
+DOCKER_CREATE_COMMAND="docker create --name $CONTAINER_NAME $PORT_MAPPING $IMAGE_NAME"
 eval $DOCKER_CREATE_COMMAND
-end=`date +%s%N`
+end=`date +%s%3N`
 runtime=$((end-start))
 echo "Docker Container Creation took : $runtime nanoseconds"
 
