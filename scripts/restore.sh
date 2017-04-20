@@ -37,24 +37,25 @@ do
         ARGS="$ARGS --change \"$value\""
     else
       if [[ $value == *"-p"* ]]; then
-        echo "PORT arguments : $value"
+        #echo "PORT arguments : $value"
         PORT_MAPPING=$value
       else
-        echo "CONTAINER NAME : $value"
+        #echo "CONTAINER NAME : $value"
         CONTAINER_NAME=$value
       fi
     fi
     #echo "Name read from file - $name"
 done < "$filename"
 
-echo "$ARGS"
-echo "$CONTAINER_NAME"
-echo "$PORT_MAPPING "
+#echo "$ARGS"
+#echo "$CONTAINER_NAME"
+#echo "$PORT_MAPPING "
 
 TAR_NAME="/home/$USER/$CHECKPOINT_NAME.tar"
-echo $TAR_NAME
+#echo $TAR_NAME
 DOCKER_IMPORT_COMMAND="docker import $ARGS $TAR_NAME"
 #eval $IMAGE
 IMAGE=$(eval $DOCKER_IMPORT_COMMAND)
 #c=${!IMAGE}
 echo "IMAGE NAME: $IMAGE"
+echo ${IMAGE##*:}
