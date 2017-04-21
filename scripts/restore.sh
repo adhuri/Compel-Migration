@@ -2,7 +2,7 @@
 
 # getting arguments from the command line
 if [ ! $# -eq 6 ]; then
-	echo "USAGE: sudo ./checkpoint.sh -c CONTAINER_ID -u USER -n CHECKPOINT_NAME
+	echo "USAGE: sudo ./restore.sh -c CONTAINER_ID -u USER -n CHECKPOINT_NAME
 EXAMPLE: sudo ./checkpoint.sh -c hkj3434ljl43 -u ssakpal -n first"
 	exit 1
 fi
@@ -18,7 +18,7 @@ while [ $# -gt 0 ]; do
 		-n )	shift
 			CHECKPOINT_NAME=$1
 			;;
-		* )	echo >&2 "USAGE: sudo ./checkpoint.sh -c CONTAINER_ID  -u USER -n CHECKPOINT_NAME
+		* )	echo >&2 "USAGE: sudo ./restore.sh -c CONTAINER_ID  -u USER -n CHECKPOINT_NAME
     EXAMPLE sudo ./checkpoint.sh -c hkj3434ljl43 -n first"
 			exit 1
 	esac
@@ -69,10 +69,10 @@ IMAGE_NAME=${IMAGE##*:}
 # Create a new Docker container by the same name as the original container
 start=`date +%s%3N`
 DOCKER_CREATE_COMMAND="docker create --name $CONTAINER_NAME $PORT_MAPPING $IMAGE_NAME"
-eval $DOCKER_CREATE_COMMAND
+new_container_id=$(eval $DOCKER_CREATE_COMMAND)
 end=`date +%s%3N`
 runtime=$((end-start))
-echo "Docker Container Creation took : $runtime nanoseconds"
+echo "Docker Container Creation took : $runtime milliseconds"
 
 # Restore the container
 start=`date +%s%3N`

@@ -84,6 +84,12 @@ runtime=$((end-start))
 echo "Execution Time : $runtime milliseconds"
 
 
+#Run Restore.sh on the remote machine to restore the container
+SSH_RESTORE_COMMAND="ssh root@$DESTINATION_IP 'bash -s' -- < restore.sh \"-c\" \"$CONTAINER_ID\" \"-u\" \"$USER\" \"-n\" \"$CHECKPOINT_NAME\""
+restore_timing_info=$(eval $SSH_RESTORE_COMMAND)
+echo $restore_timing_info
+
+
 #clean up
 start=`date +%s%3N`
 docker rm $CONTAINER_ID
