@@ -156,10 +156,10 @@ func tcpListener(wg *sync.WaitGroup, server *model.Server, migrationFeatureStatu
 		log.Infoln("Accepted Connection from Prediction Client ")
 		if migrationFeatureStatus {
 			go handlePredictionDataMessage(conn, server)
+		} else {
+			// If migration Feature is disabled - Accept Connection log Warn that Migration is not enabled
+			// Migration Feature exists here to avoid prediction client failing
+			log.Warnln("Migration Feature is disabled: enable using migrate=true")
 		}
-		// If migration Feature is disabled - Accept Connection log Warn that Migration is not enabled
-		// Migration Feature exists here to avoid prediction client failing
-		log.Warnln("Migration Feature is disabled: enable using migrate=true")
-
 	}
 }
