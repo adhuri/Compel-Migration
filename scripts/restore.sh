@@ -74,6 +74,7 @@ end=`date +%s%3N`
 runtime=$((end-start))
 echo "Docker Container Creation took : $runtime milliseconds"
 
+
 # Restore the container
 start=`date +%s%3N`
 DIRECTORY="/home/$USER/checkpoint"
@@ -82,3 +83,14 @@ eval $DOCKER_RESTORE_COMMAND
 end=`date +%s%3N`
 runtime=$((end-start))
 echo "Docker Container Restoration took : $runtime milliseconds"
+
+
+#clean up
+# start=`date +%s%3N`
+# CHECKPOINT_FILES="$DIRECTORY/$CHECKPOINT_NAME"
+# docker rm $CONTAINER_ID
+# rm TAR_NAME
+# rm -rf CHECKPOINT_FILES
+# end=`date +%s%3N`
+# runtime=$((end-start))
+# echo "Clean Up Execution Time : $runtime milliseconds"
