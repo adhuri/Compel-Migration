@@ -76,7 +76,7 @@ echo "Execution Time : $runtime milliseconds"
 
 #SCP Metadata file
 start=`date +%s%3N`
-METADATA_LOCATION="$DIRECTORY/$CONTAINER_ID\_metadata.conf"
+METADATA_LOCATION="$DIRECTORY/${CONTAINER_ID}_metadata.conf"
 SCP_LOCATION="$USER@$DESTINATION_IP:/home/$USER"
 time scp -r $METADATA_LOCATION $SCP_LOCATION
 end=`date +%s%3N`
