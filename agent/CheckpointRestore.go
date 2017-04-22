@@ -249,6 +249,10 @@ func CheckpointAndRestore(containerId, destinationIp, checkpointName, user strin
 	}
 
 	// Start cleanup
-	CheckpointCleanup(containerId, destinationIp, checkpointName, user)
+	result, err := CheckpointCleanup(containerId, destinationIp, checkpointName, user)
+	if err != nil {
+		return
+	}
+	response.StatusMap[result.Command] = protocol.Status{Duration: result.TimeTaken, IsSuccess: result.IsSuccess}
 
 }
