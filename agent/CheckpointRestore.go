@@ -204,6 +204,7 @@ func CheckpointAndRestore(containerId, destinationIp, checkpointName, user strin
 	result := <-chan1
 	response.StatusMap[result.Command] = protocol.Status{Duration: result.TimeTaken, IsSuccess: result.IsSuccess}
 	if !result.IsSuccess {
+		fmt.Println("Metadata Dump Failed")
 		close(commonChan)
 		close(chan2)
 		close(chan3)
@@ -217,6 +218,7 @@ func CheckpointAndRestore(containerId, destinationIp, checkpointName, user strin
 	result = <-chan2
 	response.StatusMap[result.Command] = protocol.Status{Duration: result.TimeTaken, IsSuccess: result.IsSuccess}
 	if !result.IsSuccess {
+		fmt.Println("Checkpoint Failed")
 		close(commonChan)
 		close(chan3)
 		return
@@ -234,6 +236,7 @@ func CheckpointAndRestore(containerId, destinationIp, checkpointName, user strin
 	}
 
 	if !completeStatus {
+		fmt.Println("One of the SCP Failed")
 		close(chan3)
 		return
 	}
@@ -245,6 +248,7 @@ func CheckpointAndRestore(containerId, destinationIp, checkpointName, user strin
 	result = <-chan3
 	response.StatusMap[result.Command] = protocol.Status{Duration: result.TimeTaken, IsSuccess: result.IsSuccess}
 	if !result.IsSuccess {
+		fmt.Println("Restoration Failed")
 		return
 	}
 
