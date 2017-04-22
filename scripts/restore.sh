@@ -3,7 +3,7 @@
 # getting arguments from the command line
 if [ ! $# -eq 6 ]; then
 	echo "USAGE: sudo ./restore.sh -c CONTAINER_ID -u USER -n CHECKPOINT_NAME
-EXAMPLE: sudo ./checkpoint.sh -c hkj3434ljl43 -u ssakpal -n first"
+EXAMPLE: sudo ./restore.sh -c hkj3434ljl43 -u ssakpal -n first"
 	exit 1
 fi
 
@@ -19,7 +19,7 @@ while [ $# -gt 0 ]; do
 			CHECKPOINT_NAME=$1
 			;;
 		* )	echo >&2 "USAGE: sudo ./restore.sh -c CONTAINER_ID  -u USER -n CHECKPOINT_NAME
-    EXAMPLE sudo ./checkpoint.sh -c hkj3434ljl43 -n first"
+    EXAMPLE sudo ./restore.sh -c hkj3434ljl43 -n first"
 			exit 1
 	esac
 	shift
@@ -55,7 +55,7 @@ done < "$filename"
 # Importing the tar line by line
 start=`date +%s%3N`
 TAR_NAME="/home/$USER/$CHECKPOINT_NAME.tar"
-DOCKER_IMPORT_COMMAND="docker import $ARGS $TAR_NAME"
+DOCKER_IMPORT_COMMAND="sudo docker import $ARGS $TAR_NAME"
 IMAGE=$(eval $DOCKER_IMPORT_COMMAND)
 echo $?
 end=`date +%s%3N`
@@ -69,7 +69,7 @@ IMAGE_NAME=${IMAGE##*:}
 
 # Create a new Docker container by the same name as the original container
 start=`date +%s%3N`
-DOCKER_CREATE_COMMAND="docker create --name $CONTAINER_NAME $PORT_MAPPING $IMAGE_NAME"
+DOCKER_CREATE_COMMAND="sudo docker create --name $CONTAINER_NAME --network=my-net $PORT_MAPPING $IMAGE_NAME"
 new_container_id=$(eval $DOCKER_CREATE_COMMAND)
 echo $?
 end=`date +%s%3N`
@@ -80,7 +80,7 @@ echo "Docker Container Creation took : $runtime milliseconds"
 # Restore the container
 start=`date +%s%3N`
 DIRECTORY="/home/$USER/checkpoint"
-DOCKER_RESTORE_COMMAND="docker start --checkpoint $CHECKPOINT_NAME --checkpoint-dir=\"$DIRECTORY\" $CONTAINER_NAME"
+DOCKER_RESTORE_COMMAND="sudo docker start --checkpoint $CHECKPOINT_NAME --checkpoint-dir=\"$DIRECTORY\" $CONTAINER_NAME"
 eval $DOCKER_RESTORE_COMMAND
 echo $?
 end=`date +%s%3N`
