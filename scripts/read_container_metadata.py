@@ -46,6 +46,10 @@ f.write(Container_Name+"\n")
 if parsed_json['Config']['Env'] != None:
     for k in parsed_json['Config']['Env']:
         k = k.replace("=", " ")
+        if "host2" in k:
+            k = k.replace("host2", "host1")
+        else:
+            k = k.replace("host1", "host2")
         f.write(("ENV " + k+"\n").encode("utf-8"))
 
 

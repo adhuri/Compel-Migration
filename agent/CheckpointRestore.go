@@ -188,7 +188,7 @@ func CheckpointCleanup(containerId, destinationIp, checkpointName, user string) 
 
 func TimeTrack(start time.Time, name string) time.Duration {
 	elapsed := time.Since(start)
-	fmt.Println(name, " took ", elapsed)
+	fmt.Println("        ", name, " : ", elapsed)
 	return elapsed
 }
 

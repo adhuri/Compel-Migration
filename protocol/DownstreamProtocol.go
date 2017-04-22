@@ -12,7 +12,7 @@ type CheckpointRequest struct {
 type CheckpointResponse struct {
 	Request   CheckpointRequest
 	StatusMap map[string]Status
-	isSuccess bool
+	IsSuccess bool
 }
 
 type Status struct {

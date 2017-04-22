@@ -12,9 +12,9 @@ import (
 func TestMigrationCode(t *testing.T) {
 	request := protocol.CheckpointRequest{
 		SourceAgentIP:      "172.31.18.122",
-		ContainerID:        "e841db3b15c5",
+		ContainerID:        "a49391f80370",
 		DestinationAgentIP: "172.31.26.199",
-		CheckpointName:     "third",
+		CheckpointName:     "final",
 	}
 	simulateTCPConnection(&request)
 }
