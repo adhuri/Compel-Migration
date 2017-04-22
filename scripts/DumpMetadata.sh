@@ -30,7 +30,7 @@ done
 
 
 #capture metadata of the container
-sudo python read_container_metadata.py -n $CONTAINER_ID -u $USER
+sudo python /home/$USER/scripts/read_container_metadata.py -n $CONTAINER_ID -u $USER
 if [ $? != 0 ]; then
   echo "Metadata Dump Failed"
   exit 1
