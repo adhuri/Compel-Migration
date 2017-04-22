@@ -31,13 +31,13 @@ done
 #clean up
 TAR_NAME="/home/$USER/$CHECKPOINT_NAME.tar"
 
-docker rm $CONTAINER_ID
+sudo docker rm $CONTAINER_ID
 if [ $? != 0 ]; then
   echo "Container Removal Failed"
   exit 1
 fi
 
-rm $TAR_NAME
+sudo rm $TAR_NAME
 if [ $? != 0 ]; then
   echo "Tar Deletion Failed"
   exit 1

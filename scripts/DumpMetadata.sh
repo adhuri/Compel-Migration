@@ -21,7 +21,7 @@ while [ $# -gt 0 ]; do
 		-n )	shift
 			CHECKPOINT_NAME=$1
 			;;
-		* )	echo >&2 "USAGE: sudo ./ExportFileSystem.sh -c CONTAINER_ID -d DESTINATION_IP  -u USER -n CHECKPOINT_NAME
+		* )	echo >&2 "USAGE: sudo ./DumpMetadata.sh -c CONTAINER_ID -d DESTINATION_IP  -u USER -n CHECKPOINT_NAME
     EXAMPLE sudo ./DumpMetadata.sh -c hkj3434ljl43 -n first -d 10.10.3.7"
 			exit 1
 	esac
@@ -30,7 +30,7 @@ done
 
 
 #capture metadata of the container
-python read_container_metadata.py -n $CONTAINER_ID -u $USER
+sudo python read_container_metadata.py -n $CONTAINER_ID -u $USER
 if [ $? != 0 ]; then
   echo "Metadata Dump Failed"
   exit 1

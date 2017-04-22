@@ -30,7 +30,7 @@ done
 
 
 #Run Restore.sh on the remote machine to restore the container
-SSH_RESTORE_COMMAND="ssh root@$DESTINATION_IP 'bash -s' -- < restore.sh \"-c\" \"$CONTAINER_ID\" \"-u\" \"$USER\" \"-n\" \"$CHECKPOINT_NAME\""
+SSH_RESTORE_COMMAND="ssh $USER@$DESTINATION_IP 'bash -s' -- < restore.sh \"-c\" \"$CONTAINER_ID\" \"-u\" \"$USER\" \"-n\" \"$CHECKPOINT_NAME\""
 restore_timing_info=$(eval $SSH_RESTORE_COMMAND)
 
 if [ $? != 0 ]; then

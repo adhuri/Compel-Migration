@@ -17,7 +17,7 @@ type CommandResult struct {
 func DumpMetadata(containerId, destinationIp, checkpointName, user string, chan1 chan CommandResult, commonChan chan CommandResult) {
 	// Dump Metadata for a contianer
 	startTime := time.Now()
-	_, err := exec.Command("/home/"+user+"/DumpMetadata.sh", "-c", containerId, "-u", user, "-d", destinationIp, "-n", containerId).Output()
+	_, err := exec.Command("/home/"+user+"/scripts/DumpMetadata.sh", "-c", containerId, "-u", user, "-d", destinationIp, "-n", containerId).Output()
 	if err != nil {
 		fmt.Printf("Dumping Contaier Metadata failed for container " + containerId)
 		chan1 <- CommandResult{
@@ -37,7 +37,7 @@ func DumpMetadata(containerId, destinationIp, checkpointName, user string, chan1
 
 	// SCP Metadata to Destination
 	startTime = time.Now()
-	_, err = exec.Command("/home/"+user+"/MetadataSCP.sh", "-c", containerId, "-u", user, "-d", destinationIp, "-n", containerId).Output()
+	_, err = exec.Command("/home/"+user+"/scripts/MetadataSCP.sh", "-c", containerId, "-u", user, "-d", destinationIp, "-n", containerId).Output()
 	if err != nil {
 		fmt.Printf("SCP Container Metadata failed " + containerId + " to Destination " + destinationIp)
 		commonChan <- CommandResult{
@@ -60,7 +60,7 @@ func DumpMetadata(containerId, destinationIp, checkpointName, user string, chan1
 func ExecuteAndTransferCheckpoint(containerId, destinationIp, checkpointName, user string, chan2 chan CommandResult, commonChan chan CommandResult) {
 	// Checkpoint a contianer
 	startTime := time.Now()
-	_, err := exec.Command("/home/"+user+"/ExecuteCheckpoint.sh", "-c", containerId, "-u", user, "-d", destinationIp, "-n", containerId).Output()
+	_, err := exec.Command("/home/"+user+"/scripts/ExecuteCheckpoint.sh", "-c", containerId, "-u", user, "-d", destinationIp, "-n", containerId).Output()
 	if err != nil {
 		fmt.Printf("Checkpointing failed for container " + containerId)
 		chan2 <- CommandResult{
@@ -80,7 +80,7 @@ func ExecuteAndTransferCheckpoint(containerId, destinationIp, checkpointName, us
 
 	// SCP checkpoint files
 	startTime = time.Now()
-	_, err = exec.Command("/home/"+user+"/CheckpointSCP.sh", "-c", containerId, "-u", user, "-d", destinationIp, "-n", containerId).Output()
+	_, err = exec.Command("/home/"+user+"/scripts/CheckpointSCP.sh", "-c", containerId, "-u", user, "-d", destinationIp, "-n", containerId).Output()
 	if err != nil {
 		fmt.Printf("SCP Checkpoint failed " + containerId + " to Destination " + destinationIp)
 		commonChan <- CommandResult{
@@ -102,7 +102,7 @@ func ExecuteAndTransferCheckpoint(containerId, destinationIp, checkpointName, us
 func ExportAndTransferFileSystem(containerId, destinationIp, checkpointName, user string, commonChan chan CommandResult) {
 	// Filesystem export a contianer
 	startTime := time.Now()
-	_, err := exec.Command("/home/"+user+"/ExportFilesystem.sh", "-c", containerId, "-u", user, "-d", destinationIp, "-n", containerId).Output()
+	_, err := exec.Command("/home/"+user+"/scripts/ExportFilesystem.sh", "-c", containerId, "-u", user, "-d", destinationIp, "-n", containerId).Output()
 	if err != nil {
 		fmt.Printf("Filesystem Export Failed for Container " + containerId)
 		commonChan <- CommandResult{
@@ -122,7 +122,7 @@ func ExportAndTransferFileSystem(containerId, destinationIp, checkpointName, use
 
 	// SCP Filesystem files
 	startTime = time.Now()
-	_, err = exec.Command("/home/"+user+"/SCPFilesystem.sh", "-c", containerId, "-u", user, "-d", destinationIp, "-n", containerId).Output()
+	_, err = exec.Command("/home/"+user+"/scripts/SCPFilesystem.sh", "-c", containerId, "-u", user, "-d", destinationIp, "-n", containerId).Output()
 	if err != nil {
 		fmt.Printf("Filsystem SCP failed for container " + containerId + " to Destination " + destinationIp)
 		commonChan <- CommandResult{
@@ -145,7 +145,7 @@ func ExportAndTransferFileSystem(containerId, destinationIp, checkpointName, use
 func RestoreRemoteContainer(containerId, destinationIp, checkpointName, user string, chan3 chan CommandResult) {
 	// Remote Container Restoration
 	startTime := time.Now()
-	_, err := exec.Command("/home/"+user+"/RestoreRemote.sh", "-c", containerId, "-u", user, "-d", destinationIp, "-n", containerId).Output()
+	_, err := exec.Command("/home/"+user+"/scripts/RestoreRemote.sh", "-c", containerId, "-u", user, "-d", destinationIp, "-n", containerId).Output()
 	if err != nil {
 		fmt.Printf("Restoration for container " + containerId + " on Destination " + destinationIp + " Failed.")
 		chan3 <- CommandResult{
@@ -168,7 +168,7 @@ func CheckpointCleanup(containerId, destinationIp, checkpointName, user string) 
 
 	// Checkpoint Cleanup
 	startTime := time.Now()
-	_, err := exec.Command("/home/"+user+"/CheckpointCleanup.sh", "-c", containerId, "-u", user, "-d", destinationIp, "-n", containerId).Output()
+	_, err := exec.Command("/home/"+user+"/scripts/CheckpointCleanup.sh", "-c", containerId, "-u", user, "-d", destinationIp, "-n", containerId).Output()
 	if err != nil {
 		fmt.Printf("Checkpoint Cleanup Failed")
 		return CommandResult{

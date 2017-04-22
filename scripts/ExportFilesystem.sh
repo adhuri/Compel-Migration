@@ -31,7 +31,7 @@ done
 
 #exporting the file system
 TAR_NAME="/home/$USER/$CHECKPOINT_NAME.tar"
-docker export $CONTAINER_ID > $TAR_NAME
+sudo docker export $CONTAINER_ID > $TAR_NAME
 if [ $? != 0 ]; then
   echo "Filesystem Export Failed"
   exit 1

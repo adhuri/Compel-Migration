@@ -38,7 +38,7 @@ fi
 
 
 #checkpoint a container
-docker checkpoint create --checkpoint-dir $DIRECTORY $CONTAINER_ID $CHECKPOINT_NAME
+sudo docker checkpoint create --checkpoint-dir $DIRECTORY $CONTAINER_ID $CHECKPOINT_NAME
 if [ $? != 0 ]; then
   echo "Checkpoint Execution Failed"
   exit 1
