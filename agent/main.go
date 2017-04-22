@@ -2,10 +2,10 @@ package main
 
 import (
 	"encoding/gob"
+	"flag"
 	"net"
 	"os"
 	"sync"
-	"time"
 
 	"github.com/Sirupsen/logrus"
 	"github.com/adhuri/Compel-Migration/protocol"
@@ -34,7 +34,7 @@ func init() {
 
 }
 
-func handleMigrationRequest(conn net.Conn) {
+func handleMigrationRequest(conn net.Conn, userName string) {
 	migrationRequest := protocol.CheckpointRequest{}
 	decoder := gob.NewDecoder(conn)
 	err := decoder.Decode(&migrationRequest)
@@ -47,8 +47,11 @@ func handleMigrationRequest(conn net.Conn) {
 	// If success, print the message received
 	log.Infoln("Migration Request Received")
 	log.Debugln("Migration Request Content : ", migrationRequest)
-
-	time.Sleep(90 * time.Second)
+	// containerName := migrationRequest.ContainerID
+	// checkpointName := migrationRequest.CheckpointName
+	// hostName := migrationRequest.DestinationAgentIP
+	// command := "./checkpoint.sh -c " + containerName + " -u " + userName + " -n " + checkpointName + " -d " + hostName
+	// cmd := exec.Command("/bin/sh", "-c", command)
 
 	// Create a ConnectAck Message
 	migrationAck := protocol.NewCheckpointResponse(migrationRequest, true)
@@ -68,7 +71,7 @@ func handleMigrationRequest(conn net.Conn) {
 
 }
 
-func tcpListener(wg *sync.WaitGroup) {
+func tcpListener(wg *sync.WaitGroup, userName string) {
 	defer wg.Done()
 	// Server listens on all interfaces for TCP connestion
 	addr := ":" + "5052"
@@ -87,16 +90,21 @@ func tcpListener(wg *sync.WaitGroup) {
 			continue
 		}
 		log.Infoln(" Accepted Connection from Prediction Client ")
-		go handleMigrationRequest(conn)
+		go handleMigrationRequest(conn, userName)
 	}
 }
 
 func main() {
 
+	//migrationIp := flag.String("server", "127.0.0.1", "ip of the migration server")
+	//migrationerverPort := flag.String("udpport", "7071", "udp port on the server")
+	userName := flag.String("username", "ssakpal", "username on the server")
+	flag.Parse()
+
 	var wg sync.WaitGroup
 	wg.Add(1)
 
-	go tcpListener(&wg)
+	go tcpListener(&wg, *userName)
 
 	wg.Wait()
 

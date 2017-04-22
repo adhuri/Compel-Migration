@@ -37,14 +37,16 @@ fi
 
 #capture metadata of the container
 start=`date +%s%3N`
-time python read_container_metadata.py -n $CONTAINER_ID -u $USER
+python read_container_metadata.py -n $CONTAINER_ID -u $USER
+echo $?
 end=`date +%s%3N`
 runtime=$((end-start))
 echo "Execution Time : $runtime milliseconds"
 
 #checkpoint a container
 start=`date +%s%3N`
-time docker checkpoint create --checkpoint-dir $DIRECTORY $CONTAINER_ID $CHECKPOINT_NAME
+docker checkpoint create --checkpoint-dir $DIRECTORY $CONTAINER_ID $CHECKPOINT_NAME
+echo $?
 end=`date +%s%3N`
 runtime=$((end-start))
 echo "Execution Time : $runtime milliseconds"
@@ -52,7 +54,8 @@ echo "Execution Time : $runtime milliseconds"
 #exporting the file system
 start=`date +%s%3N`
 TAR_NAME="/home/$USER/$CHECKPOINT_NAME.tar"
-time docker export $CONTAINER_ID > $TAR_NAME
+docker export $CONTAINER_ID > $TAR_NAME
+echo $?
 end=`date +%s%3N`
 runtime=$((end-start))
 echo "Execution Time : $runtime milliseconds"
@@ -60,7 +63,8 @@ echo "Execution Time : $runtime milliseconds"
 #SCP file system to DESTINATION_IP
 start=`date +%s%3N`
 SCP_LOCATION="$USER@$DESTINATION_IP:/home/$USER"
-time scp -r $TAR_NAME $SCP_LOCATION
+scp -r $TAR_NAME $SCP_LOCATION
+echo $?
 end=`date +%s%3N`
 runtime=$((end-start))
 echo "Execution Time : $runtime milliseconds"
@@ -69,7 +73,8 @@ echo "Execution Time : $runtime milliseconds"
 start=`date +%s%3N`
 CHECKPOINT_LOCATION="$DIRECTORY/$CHECKPOINT_NAME/"
 SCP_LOCATION="$USER@$DESTINATION_IP:$DIRECTORY"
-time scp -r $CHECKPOINT_LOCATION $SCP_LOCATION
+scp -r $CHECKPOINT_LOCATION $SCP_LOCATION
+echo $?
 end=`date +%s%3N`
 runtime=$((end-start))
 echo "Execution Time : $runtime milliseconds"
@@ -78,7 +83,8 @@ echo "Execution Time : $runtime milliseconds"
 start=`date +%s%3N`
 METADATA_LOCATION="/home/$USER/${CONTAINER_ID}_metadata.conf"
 SCP_LOCATION="$USER@$DESTINATION_IP:/home/$USER"
-time scp -r $METADATA_LOCATION $SCP_LOCATION
+scp -r $METADATA_LOCATION $SCP_LOCATION
+echo $?
 end=`date +%s%3N`
 runtime=$((end-start))
 echo "Execution Time : $runtime milliseconds"
@@ -87,6 +93,7 @@ echo "Execution Time : $runtime milliseconds"
 #Run Restore.sh on the remote machine to restore the container
 SSH_RESTORE_COMMAND="ssh root@$DESTINATION_IP 'bash -s' -- < restore.sh \"-c\" \"$CONTAINER_ID\" \"-u\" \"$USER\" \"-n\" \"$CHECKPOINT_NAME\""
 restore_timing_info=$(eval $SSH_RESTORE_COMMAND)
+echo $?
 echo $restore_timing_info
 
 

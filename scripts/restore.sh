@@ -57,6 +57,7 @@ start=`date +%s%3N`
 TAR_NAME="/home/$USER/$CHECKPOINT_NAME.tar"
 DOCKER_IMPORT_COMMAND="docker import $ARGS $TAR_NAME"
 IMAGE=$(eval $DOCKER_IMPORT_COMMAND)
+echo $?
 end=`date +%s%3N`
 runtime=$((end-start))
 echo "Docker Image Importing took : $runtime milliseconds"
@@ -70,6 +71,7 @@ IMAGE_NAME=${IMAGE##*:}
 start=`date +%s%3N`
 DOCKER_CREATE_COMMAND="docker create --name $CONTAINER_NAME $PORT_MAPPING $IMAGE_NAME"
 new_container_id=$(eval $DOCKER_CREATE_COMMAND)
+echo $?
 end=`date +%s%3N`
 runtime=$((end-start))
 echo "Docker Container Creation took : $runtime milliseconds"
@@ -80,6 +82,7 @@ start=`date +%s%3N`
 DIRECTORY="/home/$USER/checkpoint"
 DOCKER_RESTORE_COMMAND="docker start --checkpoint $CHECKPOINT_NAME --checkpoint-dir=\"$DIRECTORY\" $CONTAINER_NAME"
 eval $DOCKER_RESTORE_COMMAND
+echo $? 
 end=`date +%s%3N`
 runtime=$((end-start))
 echo "Docker Container Restoration took : $runtime milliseconds"
