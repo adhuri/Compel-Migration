@@ -82,7 +82,7 @@ start=`date +%s%3N`
 DIRECTORY="/home/$USER/checkpoint"
 DOCKER_RESTORE_COMMAND="docker start --checkpoint $CHECKPOINT_NAME --checkpoint-dir=\"$DIRECTORY\" $CONTAINER_NAME"
 eval $DOCKER_RESTORE_COMMAND
-echo $? 
+echo $?
 end=`date +%s%3N`
 runtime=$((end-start))
 echo "Docker Container Restoration took : $runtime milliseconds"

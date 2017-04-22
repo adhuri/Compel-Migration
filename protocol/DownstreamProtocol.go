@@ -1,5 +1,7 @@
 package protocol
 
+import "time"
+
 type CheckpointRequest struct {
 	SourceAgentIP      string
 	ContainerID        string
@@ -9,7 +11,12 @@ type CheckpointRequest struct {
 
 type CheckpointResponse struct {
 	Request   CheckpointRequest
-	IsSuccess bool
+	StatusMap map[string]Status
+}
+
+type Status struct {
+	isSucess bool
+	duration time.Duration
 }
 
 func NewCheckpointRequest(sourceIp, containerId, destinationIp, checkpointName string) *CheckpointRequest {
@@ -21,9 +28,17 @@ func NewCheckpointRequest(sourceIp, containerId, destinationIp, checkpointName s
 	}
 }
 
-func NewCheckpointResponse(request CheckpointRequest, status bool) *CheckpointResponse {
+func NewCheckpointResponse(request CheckpointRequest) *CheckpointResponse {
 	return &CheckpointResponse{
 		Request:   request,
-		IsSuccess: status,
+		StatusMap: make(map[string]Status),
+	}
+}
+
+func NewStatus() *Status {
+
+	return &Status{
+		isSucess: false,
+		duration: time.Nanosecond,
 	}
 }

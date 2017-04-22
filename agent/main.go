@@ -47,6 +47,7 @@ func handleMigrationRequest(conn net.Conn, userName string) {
 	// If success, print the message received
 	log.Infoln("Migration Request Received")
 	log.Debugln("Migration Request Content : ", migrationRequest)
+	migrationAck := protocol.NewCheckpointResponse(migrationRequest)
 	// containerName := migrationRequest.ContainerID
 	// checkpointName := migrationRequest.CheckpointName
 	// hostName := migrationRequest.DestinationAgentIP
@@ -54,7 +55,6 @@ func handleMigrationRequest(conn net.Conn, userName string) {
 	// cmd := exec.Command("/bin/sh", "-c", command)
 
 	// Create a ConnectAck Message
-	migrationAck := protocol.NewCheckpointResponse(migrationRequest, true)
 
 	// Send Connect Ack back to the client
 	encoder := gob.NewEncoder(conn)
