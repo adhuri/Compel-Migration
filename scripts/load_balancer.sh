@@ -23,7 +23,7 @@ echo "upstream webserver  {" > $NGINX_FILE
 
 for (( c=1; c<=$number; c++ ))
 do
-	echo "Enter loadbalance agent host $c public ip - eg 152.1.13.183, 152.46.18.63"
+	echo "Enter loadbalance agent host $c public ip:port - eg 152.1.13.183:81, 152.46.18.63:81"
 	read ip
   echo "server $ip;">>$NGINX_FILE
 done
