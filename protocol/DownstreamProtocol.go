@@ -12,11 +12,12 @@ type CheckpointRequest struct {
 type CheckpointResponse struct {
 	Request   CheckpointRequest
 	StatusMap map[string]Status
+	isSuccess bool
 }
 
 type Status struct {
-	isSucess bool
-	duration time.Duration
+	IsSuccess bool
+	Duration  time.Duration
 }
 
 func NewCheckpointRequest(sourceIp, containerId, destinationIp, checkpointName string) *CheckpointRequest {
@@ -32,13 +33,14 @@ func NewCheckpointResponse(request CheckpointRequest) *CheckpointResponse {
 	return &CheckpointResponse{
 		Request:   request,
 		StatusMap: make(map[string]Status),
+		isSuccess: false,
 	}
 }
 
 func NewStatus() *Status {
 
 	return &Status{
-		isSucess: false,
-		duration: time.Nanosecond,
+		IsSuccess: false,
+		Duration:  time.Nanosecond,
 	}
 }

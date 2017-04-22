@@ -34,6 +34,17 @@ func init() {
 
 }
 
+func InitializeResponse(response *protocol.CheckpointResponse) {
+	response.StatusMap["Metadata Dump"] = *protocol.NewStatus()
+	response.StatusMap["Metadata Scp"] = *protocol.NewStatus()
+	response.StatusMap["Container Checkpoint"] = *protocol.NewStatus()
+	response.StatusMap["Checkpoint Transfer"] = *protocol.NewStatus()
+	response.StatusMap["Filesystem Export"] = *protocol.NewStatus()
+	response.StatusMap["FileSystem Transfer"] = *protocol.NewStatus()
+	response.StatusMap["Container Restore"] = *protocol.NewStatus()
+	response.StatusMap["Checkpoint Cleanup"] = *protocol.NewStatus()
+}
+
 func handleMigrationRequest(conn net.Conn, userName string) {
 	migrationRequest := protocol.CheckpointRequest{}
 	decoder := gob.NewDecoder(conn)
@@ -47,10 +58,13 @@ func handleMigrationRequest(conn net.Conn, userName string) {
 	// If success, print the message received
 	log.Infoln("Migration Request Received")
 	log.Debugln("Migration Request Content : ", migrationRequest)
-	migrationAck := protocol.NewCheckpointResponse(migrationRequest)
-	// containerName := migrationRequest.ContainerID
-	// checkpointName := migrationRequest.CheckpointName
-	// hostName := migrationRequest.DestinationAgentIP
+	migrationResponse := protocol.NewCheckpointResponse(migrationRequest)
+	InitializeResponse(migrationResponse)
+
+	containerId := migrationRequest.ContainerID
+	checkpointName := migrationRequest.CheckpointName
+	destinationIp := migrationRequest.DestinationAgentIP
+	CheckpointAndRestore(containerId, destinationIp, checkpointName, userName, migrationResponse)
 	// command := "./checkpoint.sh -c " + containerName + " -u " + userName + " -n " + checkpointName + " -d " + hostName
 	// cmd := exec.Command("/bin/sh", "-c", command)
 
@@ -58,7 +72,7 @@ func handleMigrationRequest(conn net.Conn, userName string) {
 
 	// Send Connect Ack back to the client
 	encoder := gob.NewEncoder(conn)
-	err = encoder.Encode(migrationAck)
+	err = encoder.Encode(migrationResponse)
 	//err = binary.Write(conn, binary.LittleEndian, connectAck)
 	if err != nil {
 		// If failure in parsing, close the connection and return
