@@ -33,6 +33,7 @@ done
 DIRECTORY="/home/$USER/checkpoint"
 if [ ! -d "$DIRECTORY" ]; then
   mkdir $DIRECTORY
+	sudo chown $USER $DIRECTORY
   echo "Checkpoint directory created"
 fi
 

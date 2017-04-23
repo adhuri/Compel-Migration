@@ -12,7 +12,7 @@ type CheckpointRequest struct {
 type CheckpointResponse struct {
 	Request   CheckpointRequest
 	StatusMap map[string]Status
-	isSuccess bool
+	IsSuccess bool
 }
 
 type Status struct {
@@ -33,7 +33,7 @@ func NewCheckpointResponse(request CheckpointRequest) *CheckpointResponse {
 	return &CheckpointResponse{
 		Request:   request,
 		StatusMap: make(map[string]Status),
-		isSuccess: false,
+		IsSuccess: false,
 	}
 }
 

@@ -3,9 +3,12 @@ package main
 import (
 	"encoding/gob"
 	"flag"
+	"fmt"
 	"net"
 	"os"
+	"os/exec"
 	"sync"
+	"time"
 
 	"github.com/Sirupsen/logrus"
 	"github.com/adhuri/Compel-Migration/protocol"
@@ -34,6 +37,14 @@ func init() {
 
 }
 
+func containerPresent(userName, containerId string) bool {
+	_, err := exec.Command("/home/"+userName+"/scripts/FindContainer.sh", "-c", containerId).Output()
+	if err != nil {
+		return false
+	}
+	return true
+}
+
 func InitializeResponse(response *protocol.CheckpointResponse) {
 	response.StatusMap["Metadata Dump"] = *protocol.NewStatus()
 	response.StatusMap["Metadata Scp"] = *protocol.NewStatus()
@@ -43,10 +54,15 @@ func InitializeResponse(response *protocol.CheckpointResponse) {
 	response.StatusMap["FileSystem Transfer"] = *protocol.NewStatus()
 	response.StatusMap["Container Restore"] = *protocol.NewStatus()
 	response.StatusMap["Checkpoint Cleanup"] = *protocol.NewStatus()
+	response.StatusMap["Stop Load-Balancer"] = *protocol.NewStatus()
+	response.StatusMap["Start Load-Balancer"] = *protocol.NewStatus()
 }
 
-func handleMigrationRequest(conn net.Conn, userName string) {
+func handleMigrationRequest(conn net.Conn, userName string, active bool, agent *Agent) {
+	//defer conn.Close()
+
 	migrationRequest := protocol.CheckpointRequest{}
+
 	decoder := gob.NewDecoder(conn)
 	err := decoder.Decode(&migrationRequest)
 	//err := binary.Read(conn, binary.LittleEndian, &connectMessage)
@@ -55,22 +71,37 @@ func handleMigrationRequest(conn net.Conn, userName string) {
 		log.Errorln("Bad Migration Request From Server" + err.Error())
 		return
 	}
+
+	containerId := migrationRequest.ContainerID
+	if !containerPresent(userName, containerId) {
+		log.Errorln("Container " + containerId + " Not Present.")
+		return
+	}
+
+	if agent.GetMigrationGoingStatus() {
+		log.Errorln("Migration Going On: Cannont Migrate at this time")
+		return
+	}
+
+	agent.SetMigrationGoingStatus(true)
+
 	// If success, print the message received
 	log.Infoln("Migration Request Received")
 	log.Debugln("Migration Request Content : ", migrationRequest)
 	migrationResponse := protocol.NewCheckpointResponse(migrationRequest)
 	InitializeResponse(migrationResponse)
 
-	containerId := migrationRequest.ContainerID
-	checkpointName := migrationRequest.CheckpointName
-	destinationIp := migrationRequest.DestinationAgentIP
-	CheckpointAndRestore(containerId, destinationIp, checkpointName, userName, migrationResponse)
-	// command := "./checkpoint.sh -c " + containerName + " -u " + userName + " -n " + checkpointName + " -d " + hostName
-	// cmd := exec.Command("/bin/sh", "-c", command)
+	if active {
+		log.Infoln("MIGRATION STATS")
+		checkpointName := migrationRequest.CheckpointName
+		destinationIp := migrationRequest.DestinationAgentIP
+		CheckpointAndRestore(containerId, destinationIp, checkpointName, userName, migrationResponse)
+	}
 
-	// Create a ConnectAck Message
+	agent.SetMigrationGoingStatus(false)
 
-	// Send Connect Ack back to the client
+	PrintResponse(migrationResponse)
+
 	encoder := gob.NewEncoder(conn)
 	err = encoder.Encode(migrationResponse)
 	//err = binary.Write(conn, binary.LittleEndian, connectAck)
@@ -79,13 +110,13 @@ func handleMigrationRequest(conn net.Conn, userName string) {
 		log.Errorln("Failure in Sending Migration Success Ack")
 		return
 	}
-	log.Infoln("Migration Was Success")
+	log.Infoln("Checkpoint Response Was Success")
 	// close connection when done
 	conn.Close()
 
 }
 
-func tcpListener(wg *sync.WaitGroup, userName string) {
+func tcpListener(wg *sync.WaitGroup, userName string, active bool, agent *Agent) {
 	defer wg.Done()
 	// Server listens on all interfaces for TCP connestion
 	addr := ":" + "5052"
@@ -104,8 +135,17 @@ func tcpListener(wg *sync.WaitGroup, userName string) {
 			continue
 		}
 		log.Infoln(" Accepted Connection from Prediction Client ")
-		go handleMigrationRequest(conn, userName)
+		go handleMigrationRequest(conn, userName, active, agent)
 	}
+}
+
+func PrintResponse(response *protocol.CheckpointResponse) {
+	for k, v := range response.StatusMap {
+		d := v.Duration / time.Millisecond
+		fmt.Println("        Status : ", v.IsSuccess, "\t\tDuration : "+d.String()+"\t\tActivity : "+k)
+	}
+	fmt.Println("        OVERALL STATUS : ", response.IsSuccess)
+
 }
 
 func main() {
@@ -113,12 +153,19 @@ func main() {
 	//migrationIp := flag.String("server", "127.0.0.1", "ip of the migration server")
 	//migrationerverPort := flag.String("udpport", "7071", "udp port on the server")
 	userName := flag.String("username", "ssakpal", "username on the server")
+	active := flag.Bool("active", false, "username on the server")
 	flag.Parse()
+
+	if !*active {
+		log.Warnln("MIGRATION IS SWITCHED OFF --(to active set -active=true ) ")
+		log.Warnln("MIGRATION IS SWITCHED OFF --(to active set -active=true )")
+	}
+	agent := NewAgent()
 
 	var wg sync.WaitGroup
 	wg.Add(1)
 
-	go tcpListener(&wg, *userName)
+	go tcpListener(&wg, *userName, *active, agent)
 
 	wg.Wait()
 

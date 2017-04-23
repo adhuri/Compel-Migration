@@ -186,9 +186,53 @@ func CheckpointCleanup(containerId, destinationIp, checkpointName, user string) 
 
 }
 
+func StopLoadBalancer(containerId, destinationIp, checkpointName, user string) (CommandResult, error) {
+
+	// Checkpoint Cleanup
+	startTime := time.Now()
+	_, err := exec.Command("/home/"+user+"/scripts/StopLB.sh", "-c", containerId, "-u", user, "-d", destinationIp, "-n", checkpointName).Output()
+	if err != nil {
+		fmt.Println("Load Balancer Stopping Failed")
+		return CommandResult{
+			Command:   "Stop Load-Balancer",
+			TimeTaken: time.Nanosecond,
+			IsSuccess: false,
+		}, err
+	}
+	d1 := TimeTrack(startTime, "Stop Load-Balancer")
+	return CommandResult{
+		Command:   "Stop Load-Balancer",
+		TimeTaken: d1,
+		IsSuccess: true,
+	}, nil
+
+}
+
+func StartLoadBalancer(containerId, destinationIp, checkpointName, user string) (CommandResult, error) {
+
+	// Checkpoint Cleanup
+	startTime := time.Now()
+	_, err := exec.Command("/home/"+user+"/scripts/StartLB.sh", "-c", containerId, "-u", user, "-d", destinationIp, "-n", checkpointName).Output()
+	if err != nil {
+		fmt.Println("Load Balancer Starting Failed")
+		return CommandResult{
+			Command:   "Start Load-Balancer",
+			TimeTaken: time.Nanosecond,
+			IsSuccess: false,
+		}, err
+	}
+	d1 := TimeTrack(startTime, "Start Load-Balancer")
+	return CommandResult{
+		Command:   "Start Load-Balancer",
+		TimeTaken: d1,
+		IsSuccess: true,
+	}, nil
+
+}
+
 func TimeTrack(start time.Time, name string) time.Duration {
 	elapsed := time.Since(start)
-	fmt.Println(name, " took ", elapsed)
+	fmt.Println("        ", name, " : ", elapsed)
 	return elapsed
 }
 
@@ -198,10 +242,16 @@ func CheckpointAndRestore(containerId, destinationIp, checkpointName, user strin
 	chan3 := make(chan CommandResult)
 	commonChan := make(chan CommandResult, 4)
 
+	result, err := StopLoadBalancer(containerId, destinationIp, checkpointName, user)
+	if err != nil {
+		return
+	}
+	response.StatusMap[result.Command] = protocol.Status{Duration: result.TimeTaken, IsSuccess: result.IsSuccess}
+
 	// Start Metadata Dump and Transfer
 	go DumpMetadata(containerId, destinationIp, checkpointName, user, chan1, commonChan)
 
-	result := <-chan1
+	result = <-chan1
 	response.StatusMap[result.Command] = protocol.Status{Duration: result.TimeTaken, IsSuccess: result.IsSuccess}
 	if !result.IsSuccess {
 		fmt.Println("Metadata Dump Failed")
@@ -252,11 +302,18 @@ func CheckpointAndRestore(containerId, destinationIp, checkpointName, user strin
 		return
 	}
 
-	// Start cleanup
-	result, err := CheckpointCleanup(containerId, destinationIp, checkpointName, user)
+	result, err = StartLoadBalancer(containerId, destinationIp, checkpointName, user)
 	if err != nil {
 		return
 	}
 	response.StatusMap[result.Command] = protocol.Status{Duration: result.TimeTaken, IsSuccess: result.IsSuccess}
+
+	// Start cleanup
+	result, err = CheckpointCleanup(containerId, destinationIp, checkpointName, user)
+	if err != nil {
+		return
+	}
+	response.StatusMap[result.Command] = protocol.Status{Duration: result.TimeTaken, IsSuccess: result.IsSuccess}
+	response.IsSuccess = true
 
 }
