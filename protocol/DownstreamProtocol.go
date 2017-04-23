@@ -33,7 +33,7 @@ func NewCheckpointResponse(request CheckpointRequest) *CheckpointResponse {
 	return &CheckpointResponse{
 		Request:   request,
 		StatusMap: make(map[string]Status),
-		isSuccess: false,
+		IsSuccess: false,
 	}
 }
 

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"os/exec"
 	"sync"
 	"time"
 
@@ -36,6 +37,14 @@ func init() {
 
 }
 
+func containerPresent(containerId string) bool {
+	_, err := exec.Command("/home/"+user+"/scripts/CheckpointCleanup.sh", "-c", containerId).Output()
+	if err != nil {
+		return false
+	}
+	return true
+}
+
 func InitializeResponse(response *protocol.CheckpointResponse) {
 	response.StatusMap["Metadata Dump"] = *protocol.NewStatus()
 	response.StatusMap["Metadata Scp"] = *protocol.NewStatus()
@@ -47,8 +56,11 @@ func InitializeResponse(response *protocol.CheckpointResponse) {
 	response.StatusMap["Checkpoint Cleanup"] = *protocol.NewStatus()
 }
 
-func handleMigrationRequest(conn net.Conn, userName string, active bool) {
+func handleMigrationRequest(conn net.Conn, userName string, active bool, agent *Agent) {
+	//defer conn.Close()
+
 	migrationRequest := protocol.CheckpointRequest{}
+
 	decoder := gob.NewDecoder(conn)
 	err := decoder.Decode(&migrationRequest)
 	//err := binary.Read(conn, binary.LittleEndian, &connectMessage)
@@ -57,6 +69,20 @@ func handleMigrationRequest(conn net.Conn, userName string, active bool) {
 		log.Errorln("Bad Migration Request From Server" + err.Error())
 		return
 	}
+
+	containerId := migrationRequest.ContainerID
+	if !containerPresent(containerId) {
+		log.Errorln("Container " + containerId + " Not Present.")
+		return
+	}
+
+	if agent.GetMigrationGoingStatus() {
+		log.Errorln("Migration Going On: Cannont Migrate at this time")
+		return
+	}
+
+	agent.SetMigrationGoingStatus(true)
+
 	// If success, print the message received
 	log.Infoln("Migration Request Received")
 	log.Debugln("Migration Request Content : ", migrationRequest)
@@ -65,11 +91,12 @@ func handleMigrationRequest(conn net.Conn, userName string, active bool) {
 
 	if active {
 		log.Infoln("MIGRATION STATS")
-		containerId := migrationRequest.ContainerID
 		checkpointName := migrationRequest.CheckpointName
 		destinationIp := migrationRequest.DestinationAgentIP
 		CheckpointAndRestore(containerId, destinationIp, checkpointName, userName, migrationResponse)
 	}
+
+	agent.SetMigrationGoingStatus(false)
 
 	PrintResponse(migrationResponse)
 
@@ -87,7 +114,7 @@ func handleMigrationRequest(conn net.Conn, userName string, active bool) {
 
 }
 
-func tcpListener(wg *sync.WaitGroup, userName string, active bool) {
+func tcpListener(wg *sync.WaitGroup, userName string, active bool, agent *Agent) {
 	defer wg.Done()
 	// Server listens on all interfaces for TCP connestion
 	addr := ":" + "5052"
@@ -106,13 +133,14 @@ func tcpListener(wg *sync.WaitGroup, userName string, active bool) {
 			continue
 		}
 		log.Infoln(" Accepted Connection from Prediction Client ")
-		go handleMigrationRequest(conn, userName, active)
+		go handleMigrationRequest(conn, userName, active, agent)
 	}
 }
 
 func PrintResponse(response *protocol.CheckpointResponse) {
 	for k, v := range response.StatusMap {
-		fmt.Println("        Status : ", v.IsSuccess, "\tDuration : "+string(v.Duration/time.Millisecond)+"\t Activity : "+k)
+		d := v.Duration / time.Millisecond
+		fmt.Println("        Status : ", v.IsSuccess, "\t\tDuration : "+d.String()+"\t\tActivity : "+k)
 	}
 	fmt.Println("        OVERALL STATUS : ", response.IsSuccess)
 
@@ -130,11 +158,12 @@ func main() {
 		log.Warnln("MIGRATION IS SWITCHED OFF --(to active set -active=true ) ")
 		log.Warnln("MIGRATION IS SWITCHED OFF --(to active set -active=true )")
 	}
+	agent := NewAgent()
 
 	var wg sync.WaitGroup
 	wg.Add(1)
 
-	go tcpListener(&wg, *userName, *active)
+	go tcpListener(&wg, *userName, *active, agent)
 
 	wg.Wait()
 

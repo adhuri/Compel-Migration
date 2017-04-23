@@ -11,10 +11,10 @@ import (
 
 func TestMigrationCode(t *testing.T) {
 	request := protocol.CheckpointRequest{
-		SourceAgentIP:      "172.31.18.122",
-		ContainerID:        "a49391f80370",
-		DestinationAgentIP: "172.31.26.199",
-		CheckpointName:     "final",
+		SourceAgentIP:      "172.31.26.199",
+		ContainerID:        "9f959e1f99fd",
+		DestinationAgentIP: "172.31.18.122",
+		CheckpointName:     "integratedResults",
 	}
 	simulateTCPConnection(&request)
 }
@@ -49,7 +49,7 @@ func sendCheckpoinRequest(conn net.Conn, request *protocol.CheckpointRequest) er
 }
 
 func simulateTCPConnection(request *protocol.CheckpointRequest) {
-	addr := "52.35.219.45" + ":" + "5052"
+	addr := "52.25.44.141" + ":" + "5052"
 	log.Info("Connect test client to server ", addr)
 	conn, err := net.Dial("tcp", addr)
 	if err != nil {

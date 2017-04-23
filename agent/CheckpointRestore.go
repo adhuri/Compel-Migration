@@ -258,5 +258,6 @@ func CheckpointAndRestore(containerId, destinationIp, checkpointName, user strin
 		return
 	}
 	response.StatusMap[result.Command] = protocol.Status{Duration: result.TimeTaken, IsSuccess: result.IsSuccess}
+	response.IsSuccess = true
 
 }
