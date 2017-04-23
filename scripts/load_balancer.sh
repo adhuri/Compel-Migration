@@ -5,8 +5,9 @@
 # Install Nginx
 
 #sudo apt-get update
-sudo apt-get install nginx
+#sudo apt-get install nginx
 
+echo " Install nginx plus manually -"
 echo -n "Enter number of agent hosts to loadbalance [ENTER]: "
 read number
 
