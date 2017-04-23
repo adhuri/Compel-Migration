@@ -117,7 +117,9 @@ func handlePredictionDataMessage(conn net.Conn, server *model.Server) {
 
 	// send migration request if decided to migrate
 	if migrationNeeded {
+		server.SetMigrationStatus(true)
 		err = SendMigrationRequest(migrationInfo, server, log)
+		server.SetMigrationStatus(false)
 		if err != nil {
 			log.Infoln("Migration Was Failure")
 			return
