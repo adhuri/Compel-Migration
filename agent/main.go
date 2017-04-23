@@ -54,6 +54,8 @@ func InitializeResponse(response *protocol.CheckpointResponse) {
 	response.StatusMap["FileSystem Transfer"] = *protocol.NewStatus()
 	response.StatusMap["Container Restore"] = *protocol.NewStatus()
 	response.StatusMap["Checkpoint Cleanup"] = *protocol.NewStatus()
+	response.StatusMap["Stop Load-Balancer"] = *protocol.NewStatus()
+	response.StatusMap["Start Load-Balancer"] = *protocol.NewStatus()
 }
 
 func handleMigrationRequest(conn net.Conn, userName string, active bool, agent *Agent) {
