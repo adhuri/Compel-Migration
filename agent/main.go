@@ -37,8 +37,8 @@ func init() {
 
 }
 
-func containerPresent(containerId string) bool {
-	_, err := exec.Command("/home/"+user+"/scripts/CheckpointCleanup.sh", "-c", containerId).Output()
+func containerPresent(userName, containerId string) bool {
+	_, err := exec.Command("/home/"+userName+"/scripts/FindContainer.sh", "-c", containerId).Output()
 	if err != nil {
 		return false
 	}
@@ -71,7 +71,7 @@ func handleMigrationRequest(conn net.Conn, userName string, active bool, agent *
 	}
 
 	containerId := migrationRequest.ContainerID
-	if !containerPresent(containerId) {
+	if !containerPresent(userName, containerId) {
 		log.Errorln("Container " + containerId + " Not Present.")
 		return
 	}
