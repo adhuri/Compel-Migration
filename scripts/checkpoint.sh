@@ -28,7 +28,6 @@ while [ $# -gt 0 ]; do
 	shift
 done
 
-
 #creating a checkpoint directory if not present
 DIRECTORY="/home/$USER/checkpoint"
 if [ ! -d "$DIRECTORY" ]; then
@@ -36,25 +35,72 @@ if [ ! -d "$DIRECTORY" ]; then
   echo "Checkpoint directory created"
 fi
 
-#checkpoint a container
-start=`date +%s%N`
-time docker checkpoint create --checkpoint-dir $DIRECTORY $CONTAINER_ID $CHECKPOINT_NAME
-end=`date +%s%N`
+#capture metadata of the container
+start=`date +%s%3N`
+python read_container_metadata.py -n $CONTAINER_ID -u $USER
+echo $?
+end=`date +%s%3N`
 runtime=$((end-start))
-echo "Execution Time : $runtime nanoseconds"
+echo "Execution Time : $runtime milliseconds"
+
+#checkpoint a container
+start=`date +%s%3N`
+docker checkpoint create --checkpoint-dir $DIRECTORY $CONTAINER_ID $CHECKPOINT_NAME
+echo $?
+end=`date +%s%3N`
+runtime=$((end-start))
+echo "Execution Time : $runtime milliseconds"
 
 #exporting the file system
+start=`date +%s%3N`
 TAR_NAME="/home/$USER/$CHECKPOINT_NAME.tar"
-time docker export $CONTAINER_ID > $TAR_NAME
+docker export $CONTAINER_ID > $TAR_NAME
+echo $?
+end=`date +%s%3N`
+runtime=$((end-start))
+echo "Execution Time : $runtime milliseconds"
 
 #SCP file system to DESTINATION_IP
+start=`date +%s%3N`
 SCP_LOCATION="$USER@$DESTINATION_IP:/home/$USER"
-time scp -r $TAR_NAME  $SCP_LOCATION
-
+scp -r $TAR_NAME $SCP_LOCATION
+echo $?
+end=`date +%s%3N`
+runtime=$((end-start))
+echo "Execution Time : $runtime milliseconds"
 
 #SCP checkpoint file to the DESTINATION_IP
-CHECKPOINT_LOCATION="$DIRECTORY/$CHECKPOINT_NAME/"
-SCP_LOCATION="$USER@$DESTINATION_IP:$DIRECTORY"
-time scp -r $CHECKPOINT_LOCATION $SCP_LOCATION
+start=`date +%s%3N`
+CHECKPOINT_LOCATION="$DIRECTORY/$CHECKPOINT_NAME"
+SCP_LOCATION="$USER@$DESTINATION_IP:$DIRECTORY/"
+rsync -r $CHECKPOINT_LOCATION $SCP_LOCATION
+echo $?
+end=`date +%s%3N`
+runtime=$((end-start))
+echo "Execution Time : $runtime milliseconds"
 
-#clean up script
+#SCP Metadata file
+start=`date +%s%3N`
+METADATA_LOCATION="/home/$USER/${CONTAINER_ID}_metadata.conf"
+SCP_LOCATION="$USER@$DESTINATION_IP:/home/$USER"
+scp -r $METADATA_LOCATION $SCP_LOCATION
+echo $?
+end=`date +%s%3N`
+runtime=$((end-start))
+echo "Execution Time : $runtime milliseconds"
+
+
+#Run Restore.sh on the remote machine to restore the container
+SSH_RESTORE_COMMAND="ssh $USER@$DESTINATION_IP 'bash -s' -- < restore.sh \"-c\" \"$CONTAINER_ID\" \"-u\" \"$USER\" \"-n\" \"$CHECKPOINT_NAME\""
+restore_timing_info=$(eval $SSH_RESTORE_COMMAND)
+echo $?
+echo $restore_timing_info
+
+
+#clean up
+start=`date +%s%3N`
+docker rm $CONTAINER_ID
+rm $TAR_NAME
+end=`date +%s%3N`
+runtime=$((end-start))
+echo "Execution Time : $runtime milliseconds"
