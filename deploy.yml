@@ -4,7 +4,7 @@
 
 - hosts: compel-server
   vars:
-    module_name: "Compel-Migration"
+    module_name: "Compel-Migration-server"
     go_path: "{{ lookup('env','GOPATH') }}"
   tasks:
     - name: Deploy {{ module_name }} on compel
@@ -23,14 +23,23 @@
 #Change to host1 and host2 for prod
 - hosts: host1,host2
   vars:
-    module_name: "compel-migration"
+    module_name: "Compel-Migration-agent"
     go_path: "{{ lookup('env','GOPATH') }}"
+    source_folder: "/{{ go_path }}/src/github.com/adhuri/Compel-Migration/scripts/"
   tasks:
-    - name: Deploy {{ module_name }} scripts on agents - As of now do nothing
-      #copy:
-      #  src: /{{ go_path }}/bin/{{ module_name }}-agent
-      #  dest: ~/{{ module_name }}-agent
-      #  mode: "u+x"
+    - name: Deploy {{ module_name }} on compel
+      copy:
+        src: /{{ go_path }}/bin/{{ module_name }}
+        dest: ~/{{ module_name }}
+        mode: "u+x"
+
+    - name: Deploy {{ module_name }} scripts on agents  {{ source_folder }}
+      copy: src={{ source_folder }} dest=~/scripts/ mode=777 #directory_mode=yes
+       #command: cp -r /{{ go_path }}/src/github.com/adhuri/Compel-Migration/scripts/* ~/
+#    copy:
+#        src: /{{ go_path }}/src/github.com/adhuri/Compel-Migration/scripts/*
+#        dest: ~/
+#        mode: "u+x"
 
     # - name: Start {{ module_name }}-agent #on port {{server_port}}
     #   #shell: ~/{{ module_name }}-server {{server_port}}
