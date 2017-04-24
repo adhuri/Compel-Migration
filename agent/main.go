@@ -97,7 +97,7 @@ func handleMigrationRequest(conn net.Conn, userName string, active bool, agent *
 	if active {
 		flag = true
 		fmt.Println("")
-		log.Infoln("						MIGRATION STATS")
+		log.Infoln("				MIGRATION STEPS")
 		checkpointName := migrationRequest.CheckpointName
 		destinationIp := migrationRequest.DestinationAgentIP
 		CheckpointAndRestore(containerId, destinationIp, checkpointName, userName, migrationResponse)
@@ -152,6 +152,8 @@ func tcpListener(wg *sync.WaitGroup, userName string, active bool, agent *Agent)
 }
 
 func PrintResponse(response *protocol.CheckpointResponse) {
+
+	log.Infoln("				MIGRATION STATS")
 
 	arr := []string{"Metadata Dump",
 		"Metadata Scp",

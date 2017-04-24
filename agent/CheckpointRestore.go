@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os/exec"
 	"time"
 
@@ -32,7 +33,7 @@ func DumpMetadata(containerId, destinationIp, checkpointName, user string, chan1
 	}
 
 	d1 := TimeTrack(startTime, "Dumping Container Metadata ")
-
+	fmt.Println("\t\tDumping Container Metadata \tFinished")
 	chan1 <- CommandResult{
 		Command:   "Metadata Dump",
 		TimeTaken: d1,
@@ -52,7 +53,7 @@ func DumpMetadata(containerId, destinationIp, checkpointName, user string, chan1
 	}
 
 	d2 := TimeTrack(startTime, "Transfering Container Metadata ")
-
+	fmt.Println("\t\tTransfering Container Metadata \tFinished")
 	commonChan <- CommandResult{
 		Command:   "Metadata Scp",
 		TimeTaken: d2,
@@ -80,7 +81,7 @@ func ExecuteAndTransferCheckpoint(containerId, destinationIp, checkpointName, us
 	}
 
 	d1 := TimeTrack(startTime, "Checkpointing Container ")
-
+	fmt.Println("\t\tCheckpointing Container \tFinished")
 	chan2 <- CommandResult{
 		Command:   "Container Checkpoint",
 		TimeTaken: d1,
@@ -100,7 +101,7 @@ func ExecuteAndTransferCheckpoint(containerId, destinationIp, checkpointName, us
 	}
 
 	d2 := TimeTrack(startTime, "Transfering Container Checkpoint Files ")
-
+	fmt.Println("\t\tTransfering Container Checkpoint \tFinished")
 	commonChan <- CommandResult{
 		Command:   "Checkpoint Transfer",
 		TimeTaken: d2,
@@ -122,7 +123,7 @@ func ExportAndTransferFileSystem(containerId, destinationIp, checkpointName, use
 	}
 
 	d1 := TimeTrack(startTime, "Exporting Container Filesystem ")
-
+	fmt.Println("\t\tExporting Container Filesystem \tFinished")
 	commonChan <- CommandResult{
 		Command:   "Filesystem Export",
 		TimeTaken: d1,
@@ -142,7 +143,7 @@ func ExportAndTransferFileSystem(containerId, destinationIp, checkpointName, use
 	}
 
 	d2 := TimeTrack(startTime, "Transfering Container Filesystem ")
-
+	fmt.Println("\t\tTransfering Container Filesystem \tFinished")
 	commonChan <- CommandResult{
 		Command:   "FileSystem Transfer",
 		TimeTaken: d2,
@@ -165,7 +166,7 @@ func RestoreRemoteContainer(containerId, destinationIp, checkpointName, user str
 	}
 
 	d1 := TimeTrack(startTime, "Restoring Remote Container ")
-
+	fmt.Println("\t\tRestoring Remote Container \tFinished")
 	chan3 <- CommandResult{
 		Command:   "Container Restore",
 		TimeTaken: d1,
@@ -187,6 +188,7 @@ func CheckpointCleanup(containerId, destinationIp, checkpointName, user string) 
 		}, err
 	}
 	d1 := TimeTrack(startTime, "Checkpoint Cleanup")
+	fmt.Println("\t\tCheckpoint Cleanup \tFinished")
 	return CommandResult{
 		Command:   "Checkpoint Cleanup",
 		TimeTaken: d1,
