@@ -4,13 +4,14 @@ import "sync"
 
 type Server struct {
 	sync.RWMutex
-	previousMigrationMap    map[string]int64 //timestamp when last migrated to avoid thrashing
-	isMigrating             bool             // To avoid multiple containers migrating at same time CHAOS
-	immovableContainersList []string
-	thrashingThreshold      int64
-	cpufp                   int64
-	memfp                   int64
-	falsePositiveMap        map[string]*FalsePositive // Check false positives before accepting decision of migrating
+	previousMigrationMap             map[string]int64 //timestamp when last migrated to avoid thrashing
+	previousSystemMigrationTimeStamp int64            //To avoid System level thrashing
+	isMigrating                      bool             // To avoid multiple containers migrating at same time CHAOS
+	immovableContainersList          []string
+	thrashingThreshold               int64
+	cpufp                            int64
+	memfp                            int64
+	falsePositiveMap                 map[string]*FalsePositive // Check false positives before accepting decision of migrating
 }
 
 // To handle False Positives
@@ -28,16 +29,30 @@ func NewFalsePositive() *FalsePositive {
 
 func NewServer(immovableContainersList []string, threshold int64, cpufp int64, memfp int64) *Server {
 	return &Server{
-		previousMigrationMap:    make(map[string]int64),
-		isMigrating:             false,
-		immovableContainersList: immovableContainersList,
-		thrashingThreshold:      threshold,
-		cpufp:                   cpufp,
-		memfp:                   memfp,
-		falsePositiveMap:        make(map[string]*FalsePositive),
+		previousMigrationMap:             make(map[string]int64),
+		isMigrating:                      false,
+		immovableContainersList:          immovableContainersList,
+		thrashingThreshold:               threshold,
+		cpufp:                            cpufp,
+		memfp:                            memfp,
+		falsePositiveMap:                 make(map[string]*FalsePositive),
+		previousSystemMigrationTimeStamp: 0,
 	}
 }
 
+func (server *Server) GetPreviousSystemMigrationTime() int64 {
+	server.RLock()
+	defer server.RUnlock()
+	return server.previousSystemMigrationTimeStamp
+}
+
+func (server *Server) SetPreviousSystemMigrationTime(timestamp int64) {
+	server.Lock()
+	defer server.Unlock()
+	server.previousSystemMigrationTimeStamp = timestamp
+}
+
+// For system level thrashing
 func (server *Server) GetPreviousContainerMigrationTime(containerId string) int64 {
 	server.RLock()
 	defer server.RUnlock()
@@ -60,6 +75,7 @@ func (server *Server) SetMigrationStatus(status bool) {
 	server.isMigrating = status
 }
 
+// For container level thrashing
 func (server *Server) SetPreviousContainerMigrationTime(containerId string, timestamp int64) {
 	server.Lock()
 	defer server.Unlock()

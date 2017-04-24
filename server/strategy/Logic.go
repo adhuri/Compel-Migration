@@ -22,17 +22,31 @@ func CheckIfFalsePositive(metric string, containerID string, server *model.Serve
 	return true
 }
 
+func CheckIfSystemThrashing(server *model.Server, log *logrus.Logger) bool {
+	systemLevelThrashingCheck := true
+	thresholdThrashing := server.GetThrashingThreshold() //5 minutes interval between thrashing
+	secondsElapsedForSystemMigration := time.Now().Unix() - server.GetPreviousSystemMigrationTime()
+
+	if systemLevelThrashingCheck && secondsElapsedForSystemMigration < thresholdThrashing {
+		log.Warnln("Thrashing might occur for System : Migration for the system was done - ", (float32(secondsElapsedForSystemMigration / 60.0)), " minutes ago")
+		return true
+	}
+	return false
+}
+
 func CheckIfMigrationTrashing(containerID string, server *model.Server, log *logrus.Logger) bool {
 	// Fetch Timestamp  from server object
 	//Unix Time stamps are number of seconds
 
 	thresholdThrashing := server.GetThrashingThreshold() //5 minutes interval between thrashing
 	secondsElapsed := time.Now().Unix() - server.GetPreviousContainerMigrationTime(containerID)
+
+	// To check per container if system not thrashing
 	if secondsElapsed < thresholdThrashing {
 		log.Warnln("Thrashing might occur for container ", containerID, " : Migration for this container was done - ", (float32(secondsElapsed / 60.0)), " minutes ago")
 		return true
-	}
 
+	}
 	return false
 }
 
@@ -41,7 +55,7 @@ func metricDecision(metric string, buckets []*Bucket, server *model.Server, log 
 	// a ) some agents have -ve free memory due to prediction
 	// b )all agents have  + ve free due to predicition
 	//log.Infoln("================Inside metric Decision")
-	log.Infoln("Decision for metric ", metric, " started")
+	log.Debugln("Decision for metric ", metric, " started")
 	unixTimestamp := time.Now().Unix()
 	timestamp := strconv.FormatInt(unixTimestamp, 10)
 	sortBucketsAsc(buckets, metric) // In place sort
