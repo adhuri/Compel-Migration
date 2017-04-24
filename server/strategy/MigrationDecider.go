@@ -67,29 +67,30 @@ func migrationDecision(buckets []*Bucket, server *model.Server, log *logrus.Logg
 func stagedDecision(metric string, buckets []*Bucket, server *model.Server, log *logrus.Logger) (bool, *protocol.CheckpointRequest) {
 
 	decisionFlag, CheckpointRequest := metricDecision(metric, buckets, server, log)
+	log.Infoln("Decision for metric ", metric, " done. Waiting for further staged decisions")
 	if decisionFlag {
 		// Increment the counter for the False positive Checker
 		server.IncrementFalsePositive(CheckpointRequest.ContainerID, metric)
 
 		if !server.GetMigrationStatus() {
 			// If Not Migrating any container
-			log.Debugln(metric, "Decision : Server is not migrating - Considering request for migration")
+			log.Infoln(metric, "Decision : Server is not migrating - Considering request for migration")
 			if !CheckIfFalsePositive(metric, CheckpointRequest.ContainerID, server, log) {
 				// Check if set Threshold is crossed to avoid false positives
-				log.Debugln(metric, "Decision : Configured Threshold for ", metric, " crossed ,not false positive - Considering request for migration")
+				log.Infoln(metric, "Decision : Configured Threshold for ", metric, " crossed ,not false positive - Considering request for migration")
 				if !CheckIfMigrationTrashing(CheckpointRequest.ContainerID, server, log) {
 					// If system is not thrashingDecision
-					log.Debugln(metric, "Decision : Migration is not trashing - Considering request for migration")
+					log.Infoln(metric, "Decision : Migration is not trashing - Considering request for migration")
 					return true, CheckpointRequest
 				} else {
-					log.Debugln(metric, "Decision : Migration is trashing , Last migration done recently - Cannot Migrate")
+					log.Infoln(metric, "Decision : Migration is trashing , Last migration done recently - Cannot Migrate")
 				}
 			} else {
-				log.Warnln(metric, " Decision : Configured Threshold for memory not crossed, probably false positive - Cannot Migrate")
+				log.Warnln(metric, " Decision : Configured Threshold for ", metric, " not crossed, probably false positive - Cannot Migrate")
 
 			}
 		} else {
-			log.Errorln("memory Decision : Previous Migration is in progress - Cannot Migrate to avoid CHAOS")
+			log.Errorln(metric, " Decision : Previous Migration is in progress - Cannot Migrate to avoid CHAOS")
 		}
 	}
 	return false, &protocol.CheckpointRequest{}
