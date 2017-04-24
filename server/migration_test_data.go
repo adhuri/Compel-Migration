@@ -18,7 +18,7 @@ func dummyData() *protocol.PredictionData {
 	memoryPredictions3 := []float32{4.2, 4.3, 4.14, 9.5}
 
 	// Agent IP 1
-	agentIP1 := "10.10.3.1"
+	agentIP1 := "127.0.0.2"
 
 	containerInfo1 := protocol.NewContainerInfo("container31", cpuPredictions1, memoryPredictions1)
 	containerInfo2 := protocol.NewContainerInfo("container32", cpuPredictions2, memoryPredictions2)
@@ -29,7 +29,7 @@ func dummyData() *protocol.PredictionData {
 
 	// Agent IP 2
 
-	agentIP2 := "10.10.4.1"
+	agentIP2 := "127.0.0.1"
 
 	containerInfo3 := protocol.NewContainerInfo("container41", cpuPredictions3, memoryPredictions3)
 

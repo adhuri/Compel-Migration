@@ -117,6 +117,7 @@ func handlePredictionDataMessage(conn net.Conn, server *model.Server) {
 
 	// send migration request if decided to migrate
 	if migrationNeeded {
+		log.Infoln("Migration request for ", migrationInfo.ContainerID, "from ", migrationInfo.SourceAgentIP, " to ", migrationInfo.DestinationAgentIP)
 		server.SetMigrationStatus(true)
 		err = SendMigrationRequest(migrationInfo, server, log)
 		server.SetMigrationStatus(false)
@@ -126,6 +127,7 @@ func handlePredictionDataMessage(conn net.Conn, server *model.Server) {
 		}
 		log.Infoln("Migration Was Success")
 		// Log previous migration time if successful
+		server.SetPreviousSystemMigrationTime(time.Now().Unix())
 		server.SetPreviousContainerMigrationTime(migrationInfo.ContainerID, time.Now().Unix())
 
 		// Reset the counters for the containerID

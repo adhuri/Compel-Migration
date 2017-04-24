@@ -71,12 +71,17 @@ func stagedDecision(metric string, buckets []*Bucket, server *model.Server, log 
 	if server.GetMigrationStatus() {
 		// Additional Check before processing
 		log.Errorln(metric, " Decision : Previous Migration is in progress - Cannot Migrate to avoid CHAOS")
+		return false, &protocol.CheckpointRequest{}
+	}
+	if CheckIfSystemThrashing(server, log) {
+		log.Warnln(metric, "Decision : Migration is trashing , Last migration done recently - Cannot Migrate")
+		return false, &protocol.CheckpointRequest{}
 	}
 	decisionFlag, CheckpointRequest := metricDecision(metric, buckets, server, log)
 	log.Infoln("Decision for metric ", metric, " done. Stats show migration not needed")
 
 	if decisionFlag {
-		log.Infoln("Decision for metric ", metric, " done. Waiting for further staged decisions")
+		log.Debugln("Decision for metric ", metric, " done. Waiting for further staged decisions")
 
 		// Increment the counter for the False positive Checker
 		server.IncrementFalsePositive(CheckpointRequest.ContainerID, metric)
@@ -92,7 +97,7 @@ func stagedDecision(metric string, buckets []*Bucket, server *model.Server, log 
 					log.Infoln(metric, "Decision : Migration is not trashing - Considering request for migration")
 					return true, CheckpointRequest
 				} else {
-					log.Infoln(metric, "Decision : Migration is trashing , Last migration done recently - Cannot Migrate")
+					log.Warnln(metric, "Decision : Migration is trashing , Last migration done recently - Cannot Migrate")
 				}
 			} else {
 				log.Warnln(metric, " Decision : Configured Threshold for ", metric, " not crossed, probably false positive - Cannot Migrate")
