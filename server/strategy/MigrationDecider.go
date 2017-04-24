@@ -1,15 +1,18 @@
 package strategy
 
 import (
+	"time"
+
 	"github.com/Sirupsen/logrus"
 	"github.com/adhuri/Compel-Migration/protocol"
 	"github.com/adhuri/Compel-Migration/server/model"
+	"github.com/adhuri/Compel-Prediction/utils"
 )
 
 // Returns if Migration is Needed
 func MigrationNeeded(predictionData *protocol.PredictionData, server *model.Server, log *logrus.Logger) (bool, *protocol.CheckpointRequest) {
 	// complete this function with the migration logic
-
+	defer utils.TimeTrack(time.Now(), "MigrationDecider.go-MigrationNeeded() - Total Decision Time ", log)
 	log.Debugln("Checking if Migration Needed")
 	Buckets := []*Bucket{} // Buckets data structure
 	log.Debugln("Buckets Data structure ", Buckets)
