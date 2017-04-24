@@ -30,7 +30,7 @@ func init() {
 	log.Out = os.Stdout
 
 	// Only log the info severity or above.
-	log.Level = logrus.DebugLevel
+	log.Level = logrus.InfoLevel
 	// Microseconds level logging
 	customFormatter := new(logrus.TextFormatter)
 	customFormatter.TimestampFormat = "2006-01-02 15:04:05.000000"
