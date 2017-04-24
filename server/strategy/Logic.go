@@ -13,7 +13,7 @@ func CheckIfFalsePositive(metric string, containerID string, server *model.Serve
 	// Fetch Counter  from server object
 	threshold := server.GetFalsePositiveThreshold(containerID, metric)
 	currentCount := server.GetFalsePositiveMap(containerID, metric)
-	log.Debugln("CheckIfFalsePositive : Current count for containerID ", containerID, " is ", currentCount, " : Threshold is ", threshold)
+	log.Infoln("CheckIfFalsePositive : Current count for containerID ", containerID, " is ", currentCount, " : Threshold is ", threshold)
 
 	if currentCount >= threshold {
 		return false

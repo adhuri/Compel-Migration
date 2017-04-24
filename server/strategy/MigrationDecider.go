@@ -67,8 +67,11 @@ func migrationDecision(buckets []*Bucket, server *model.Server, log *logrus.Logg
 func stagedDecision(metric string, buckets []*Bucket, server *model.Server, log *logrus.Logger) (bool, *protocol.CheckpointRequest) {
 
 	decisionFlag, CheckpointRequest := metricDecision(metric, buckets, server, log)
-	log.Infoln("Decision for metric ", metric, " done. Waiting for further staged decisions")
+	log.Infoln("Decision for metric ", metric, " done. Stats show migration not needed")
+
 	if decisionFlag {
+		log.Infoln("Decision for metric ", metric, " done. Waiting for further staged decisions")
+
 		// Increment the counter for the False positive Checker
 		server.IncrementFalsePositive(CheckpointRequest.ContainerID, metric)
 
