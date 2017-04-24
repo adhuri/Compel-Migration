@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"os/exec"
 	"time"
 
@@ -17,14 +16,14 @@ type CommandResult struct {
 func DumpMetadata(containerId, destinationIp, checkpointName, user string, chan1 chan CommandResult, commonChan chan CommandResult) {
 	defer func() {
 		if r := recover(); r != nil {
-			fmt.Printf("Panic Happened")
+			log.Errorln("Panic Happened")
 		}
 	}()
 	// Dump Metadata for a contianer
 	startTime := time.Now()
 	_, err := exec.Command("/home/"+user+"/scripts/DumpMetadata.sh", "-c", containerId, "-u", user, "-d", destinationIp, "-n", checkpointName).Output()
 	if err != nil {
-		fmt.Println("Dumping Contaier Metadata failed for container " + containerId)
+		log.Errorln("Dumping Contaier Metadata failed for container " + containerId)
 		chan1 <- CommandResult{
 			Command:   "Metadata Dump",
 			TimeTaken: time.Nanosecond,
@@ -44,7 +43,7 @@ func DumpMetadata(containerId, destinationIp, checkpointName, user string, chan1
 	startTime = time.Now()
 	_, err = exec.Command("/home/"+user+"/scripts/MetadataSCP.sh", "-c", containerId, "-u", user, "-d", destinationIp, "-n", checkpointName).Output()
 	if err != nil {
-		fmt.Println("SCP Container Metadata failed " + containerId + " to Destination " + destinationIp)
+		log.Errorln("SCP Container Metadata failed " + containerId + " to Destination " + destinationIp)
 		commonChan <- CommandResult{
 			Command:   "Metadata Scp",
 			TimeTaken: time.Nanosecond,
@@ -65,14 +64,14 @@ func DumpMetadata(containerId, destinationIp, checkpointName, user string, chan1
 func ExecuteAndTransferCheckpoint(containerId, destinationIp, checkpointName, user string, chan2 chan CommandResult, commonChan chan CommandResult) {
 	defer func() {
 		if r := recover(); r != nil {
-			fmt.Printf("Panic Happened")
+			log.Errorln("Panic Happened")
 		}
 	}()
 	// Checkpoint a contianer
 	startTime := time.Now()
 	_, err := exec.Command("/home/"+user+"/scripts/ExecuteCheckpoint.sh", "-c", containerId, "-u", user, "-d", destinationIp, "-n", checkpointName).Output()
 	if err != nil {
-		fmt.Println("Checkpointing failed for container " + containerId)
+		log.Errorln("Checkpointing failed for container " + containerId)
 		chan2 <- CommandResult{
 			Command:   "Container Checkpoint",
 			TimeTaken: time.Nanosecond,
@@ -92,7 +91,7 @@ func ExecuteAndTransferCheckpoint(containerId, destinationIp, checkpointName, us
 	startTime = time.Now()
 	_, err = exec.Command("/home/"+user+"/scripts/CheckpointSCP.sh", "-c", containerId, "-u", user, "-d", destinationIp, "-n", checkpointName).Output()
 	if err != nil {
-		fmt.Println("SCP Checkpoint failed " + containerId + " to Destination " + destinationIp)
+		log.Errorln("SCP Checkpoint failed " + containerId + " to Destination " + destinationIp)
 		commonChan <- CommandResult{
 			Command:   "Checkpoint Transfer",
 			TimeTaken: time.Nanosecond,
@@ -114,7 +113,7 @@ func ExportAndTransferFileSystem(containerId, destinationIp, checkpointName, use
 	startTime := time.Now()
 	_, err := exec.Command("/home/"+user+"/scripts/ExportFilesystem.sh", "-c", containerId, "-u", user, "-d", destinationIp, "-n", checkpointName).Output()
 	if err != nil {
-		fmt.Println("Filesystem Export Failed for Container " + containerId)
+		log.Errorln("Filesystem Export Failed for Container " + containerId)
 		commonChan <- CommandResult{
 			Command:   "Filesystem Export",
 			TimeTaken: time.Nanosecond,
@@ -134,7 +133,7 @@ func ExportAndTransferFileSystem(containerId, destinationIp, checkpointName, use
 	startTime = time.Now()
 	_, err = exec.Command("/home/"+user+"/scripts/SCPFilesystem.sh", "-c", containerId, "-u", user, "-d", destinationIp, "-n", checkpointName).Output()
 	if err != nil {
-		fmt.Println("Filsystem SCP failed for container " + containerId + " to Destination " + destinationIp)
+		log.Errorln("Filsystem SCP failed for container " + containerId + " to Destination " + destinationIp)
 		commonChan <- CommandResult{
 			Command:   "FileSystem Transfer",
 			TimeTaken: time.Nanosecond,
@@ -157,7 +156,7 @@ func RestoreRemoteContainer(containerId, destinationIp, checkpointName, user str
 	startTime := time.Now()
 	_, err := exec.Command("/home/"+user+"/scripts/RestoreRemote.sh", "-c", containerId, "-u", user, "-d", destinationIp, "-n", checkpointName).Output()
 	if err != nil {
-		fmt.Println("Restoration for container " + containerId + " on Destination " + destinationIp + " Failed.")
+		log.Errorln("Restoration for container " + containerId + " on Destination " + destinationIp + " Failed.")
 		chan3 <- CommandResult{
 			Command:   "Container Restore",
 			TimeTaken: time.Nanosecond,
@@ -180,7 +179,7 @@ func CheckpointCleanup(containerId, destinationIp, checkpointName, user string) 
 	startTime := time.Now()
 	_, err := exec.Command("/home/"+user+"/scripts/CheckpointCleanup.sh", "-c", containerId, "-u", user, "-d", destinationIp, "-n", checkpointName).Output()
 	if err != nil {
-		fmt.Println("Checkpoint Cleanup Failed")
+		log.Errorln("Checkpoint Cleanup Failed")
 		return CommandResult{
 			Command:   "Checkpoint Cleanup",
 			TimeTaken: time.Nanosecond,
@@ -202,7 +201,7 @@ func StopLoadBalancer(containerId, destinationIp, checkpointName, user string) (
 	startTime := time.Now()
 	_, err := exec.Command("/home/"+user+"/scripts/StopLB.sh", "-c", containerId, "-u", user, "-d", destinationIp, "-n", checkpointName).Output()
 	if err != nil {
-		fmt.Println("Load Balancer Stopping Failed")
+		log.Errorln("Load Balancer Stopping Failed")
 		return CommandResult{
 			Command:   "Stop Load-Balancer",
 			TimeTaken: time.Nanosecond,
@@ -224,7 +223,7 @@ func StartLoadBalancer(containerId, destinationIp, checkpointName, user string) 
 	startTime := time.Now()
 	_, err := exec.Command("/home/"+user+"/scripts/StartLB.sh", "-c", containerId, "-u", user, "-d", destinationIp, "-n", checkpointName).Output()
 	if err != nil {
-		fmt.Println("Load Balancer Starting Failed")
+		log.Errorln("Load Balancer Starting Failed")
 		return CommandResult{
 			Command:   "Start Load-Balancer",
 			TimeTaken: time.Nanosecond,
@@ -242,7 +241,7 @@ func StartLoadBalancer(containerId, destinationIp, checkpointName, user string) 
 
 func TimeTrack(start time.Time, name string) time.Duration {
 	elapsed := time.Since(start)
-	fmt.Println("        ", name, " : ", elapsed)
+	log.Debugln("        ", name, " : ", elapsed)
 	return elapsed
 }
 
@@ -264,7 +263,7 @@ func CheckpointAndRestore(containerId, destinationIp, checkpointName, user strin
 	result = <-chan1
 	response.StatusMap[result.Command] = protocol.Status{Duration: result.TimeTaken, IsSuccess: result.IsSuccess}
 	if !result.IsSuccess {
-		fmt.Println("Metadata Dump Failed")
+		log.Errorln("Metadata Dump Failed")
 		close(commonChan)
 		close(chan2)
 		close(chan3)
@@ -278,7 +277,7 @@ func CheckpointAndRestore(containerId, destinationIp, checkpointName, user strin
 	result = <-chan2
 	response.StatusMap[result.Command] = protocol.Status{Duration: result.TimeTaken, IsSuccess: result.IsSuccess}
 	if !result.IsSuccess {
-		fmt.Println("Checkpoint Failed")
+		log.Errorln("Checkpoint Failed")
 		close(commonChan)
 		close(chan3)
 		return
@@ -296,7 +295,7 @@ func CheckpointAndRestore(containerId, destinationIp, checkpointName, user strin
 	}
 
 	if !completeStatus {
-		fmt.Println("One of the SCP Failed")
+		log.Errorln("One of the SCP Failed")
 		close(chan3)
 		return
 	}
@@ -308,7 +307,7 @@ func CheckpointAndRestore(containerId, destinationIp, checkpointName, user strin
 	result = <-chan3
 	response.StatusMap[result.Command] = protocol.Status{Duration: result.TimeTaken, IsSuccess: result.IsSuccess}
 	if !result.IsSuccess {
-		fmt.Println("Restoration Failed")
+		log.Errorln("Restoration Failed")
 		return
 	}
 

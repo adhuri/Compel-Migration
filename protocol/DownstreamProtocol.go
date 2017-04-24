@@ -10,9 +10,10 @@ type CheckpointRequest struct {
 }
 
 type CheckpointResponse struct {
-	Request   CheckpointRequest
-	StatusMap map[string]Status
-	IsSuccess bool
+	Request       CheckpointRequest
+	StatusMap     map[string]Status
+	IsSuccess     bool
+	TotalDuration time.Duration
 }
 
 type Status struct {
@@ -31,9 +32,10 @@ func NewCheckpointRequest(sourceIp, containerId, destinationIp, checkpointName s
 
 func NewCheckpointResponse(request CheckpointRequest) *CheckpointResponse {
 	return &CheckpointResponse{
-		Request:   request,
-		StatusMap: make(map[string]Status),
-		IsSuccess: false,
+		Request:       request,
+		StatusMap:     make(map[string]Status),
+		IsSuccess:     false,
+		TotalDuration: time.Nanosecond,
 	}
 }
 

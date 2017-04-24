@@ -2,7 +2,9 @@ package main
 
 import (
 	"encoding/gob"
+	"fmt"
 	"net"
+	"time"
 
 	"github.com/Sirupsen/logrus"
 	"github.com/adhuri/Compel-Migration/protocol"
@@ -17,6 +19,7 @@ func SendMigrationRequest(request *protocol.CheckpointRequest, server *model.Ser
 		return err
 	}
 
+	start := time.Now()
 	encoder := gob.NewEncoder(conn)
 	err = encoder.Encode(request)
 	if err != nil {
@@ -35,8 +38,19 @@ func SendMigrationRequest(request *protocol.CheckpointRequest, server *model.Ser
 		log.Errorln("Bad Reply From Server " + err.Error())
 		return err
 	}
+	elapsed := time.Since(start)
 	// Print the ACK received from the server
-	log.Infoln("Migration completed successfully")
+	if agentReply.IsSuccess {
+		networkDelay := elapsed - agentReply.TotalDuration
+		log.Infoln("Migration completed successfully")
+		fmt.Println("")
+		fmt.Println("        OVERALL MIGRATION STATUS :\t\t", agentReply.IsSuccess)
+		fmt.Println("        OVERALL MIGRATION TIME :\t\t", elapsed.String())
+		fmt.Println("        OVERALL MIGRATION TIME AT AGENT :\t\t", agentReply.TotalDuration.String())
+		fmt.Println("        OVERALL NETWORKING DELAY :\t\t", networkDelay.String())
+	} else {
+		log.Infoln("Migration Failed")
+	}
 	// If everything goes well return nil error
 	return nil
 

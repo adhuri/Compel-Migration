@@ -91,26 +91,38 @@ func handleMigrationRequest(conn net.Conn, userName string, active bool, agent *
 	migrationResponse := protocol.NewCheckpointResponse(migrationRequest)
 	InitializeResponse(migrationResponse)
 
+	flag := false
+
+	startTime := time.Now()
 	if active {
-		log.Infoln("MIGRATION STATS")
+		flag = true
+		fmt.Println("")
+		log.Infoln("						MIGRATION STATS")
 		checkpointName := migrationRequest.CheckpointName
 		destinationIp := migrationRequest.DestinationAgentIP
 		CheckpointAndRestore(containerId, destinationIp, checkpointName, userName, migrationResponse)
 	}
+	elapsed := time.Since(startTime)
 
 	agent.SetMigrationGoingStatus(false)
 
-	PrintResponse(migrationResponse)
+	if flag {
+		migrationResponse.TotalDuration = elapsed
+		PrintResponse(migrationResponse)
+
+	} else {
+		log.Infoln("Migration is set to OFF")
+	}
 
 	encoder := gob.NewEncoder(conn)
 	err = encoder.Encode(migrationResponse)
 	//err = binary.Write(conn, binary.LittleEndian, connectAck)
 	if err != nil {
 		// If failure in parsing, close the connection and return
-		log.Errorln("Failure in Sending Migration Success Ack")
+		log.Errorln("Failure in Sending Checkpoint Response")
 		return
 	}
-	log.Infoln("Checkpoint Response Was Success")
+	log.Infoln("Checkpoint Response Successfully Sent to the Migration Server")
 	// close connection when done
 	conn.Close()
 
@@ -140,11 +152,24 @@ func tcpListener(wg *sync.WaitGroup, userName string, active bool, agent *Agent)
 }
 
 func PrintResponse(response *protocol.CheckpointResponse) {
-	for k, v := range response.StatusMap {
+
+	arr := []string{"Metadata Dump",
+		"Metadata Scp",
+		"Container Checkpoint",
+		"Checkpoint Transfer",
+		"Filesystem Export",
+		"FileSystem Transfer",
+		"Container Restore",
+		"Checkpoint Cleanup",
+	}
+
+	for _, k := range arr {
+		v := response.StatusMap[k]
 		d := v.Duration / time.Millisecond
 		fmt.Println("        Status : ", v.IsSuccess, "\t\tDuration : "+d.String()+"\t\tActivity : "+k)
 	}
-	fmt.Println("        OVERALL STATUS : ", response.IsSuccess)
+	fmt.Println("        OVERALL STATUS :\t", response.IsSuccess)
+	fmt.Println("        OVERALL TIME TAKEN :\t", response.TotalDuration.String())
 
 }
 
