@@ -15,6 +15,11 @@ type CommandResult struct {
 }
 
 func DumpMetadata(containerId, destinationIp, checkpointName, user string, chan1 chan CommandResult, commonChan chan CommandResult) {
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Printf("Panic Happened")
+		}
+	}()
 	// Dump Metadata for a contianer
 	startTime := time.Now()
 	_, err := exec.Command("/home/"+user+"/scripts/DumpMetadata.sh", "-c", containerId, "-u", user, "-d", destinationIp, "-n", checkpointName).Output()
@@ -58,6 +63,11 @@ func DumpMetadata(containerId, destinationIp, checkpointName, user string, chan1
 }
 
 func ExecuteAndTransferCheckpoint(containerId, destinationIp, checkpointName, user string, chan2 chan CommandResult, commonChan chan CommandResult) {
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Printf("Panic Happened")
+		}
+	}()
 	// Checkpoint a contianer
 	startTime := time.Now()
 	_, err := exec.Command("/home/"+user+"/scripts/ExecuteCheckpoint.sh", "-c", containerId, "-u", user, "-d", destinationIp, "-n", checkpointName).Output()
