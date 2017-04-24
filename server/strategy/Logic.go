@@ -40,6 +40,7 @@ func metricDecision(metric string, buckets []*Bucket, server *model.Server, log 
 	// We handle Two main cases when
 	// a ) some agents have -ve free memory due to prediction
 	// b )all agents have  + ve free due to predicition
+	//log.Infoln("================Inside metric Decision")
 	unixTimestamp := time.Now().Unix()
 	timestamp := strconv.FormatInt(unixTimestamp, 10)
 	sortBucketsAsc(buckets, metric) // In place sort
@@ -50,6 +51,7 @@ func metricDecision(metric string, buckets []*Bucket, server *model.Server, log 
 
 		if bucketi.GetValue(metric) < 0 {
 			// For all positive values in buckets k to j where i<k<j
+			log.Infoln("One of server is overloaded")
 			for _, bucketk := range buckets {
 
 				if bucketk.GetValue(metric) >= 0 {

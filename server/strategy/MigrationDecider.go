@@ -53,8 +53,13 @@ func migrationDecision(buckets []*Bucket, server *model.Server, log *logrus.Logg
 	}
 
 	allMetrics := []string{"memory", "cpu"}
+
 	for _, metric := range allMetrics {
-		return stagedDecision(metric, buckets, server, log)
+		tempDecisionFlag, tempDecision := stagedDecision(metric, buckets, server, log)
+		if tempDecisionFlag {
+			// If temp Decision is true return else wait till all metrics are evaluated
+			return tempDecisionFlag, tempDecision
+		}
 	}
 	return false, &protocol.CheckpointRequest{}
 }
