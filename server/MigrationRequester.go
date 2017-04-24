@@ -42,12 +42,14 @@ func SendMigrationRequest(request *protocol.CheckpointRequest, server *model.Ser
 	// Print the ACK received from the server
 	if agentReply.IsSuccess {
 		networkDelay := elapsed - agentReply.TotalDuration
+		fmt.Println("")
 		log.Infoln("Migration completed successfully")
 		fmt.Println("")
-		fmt.Println("        OVERALL MIGRATION STATUS :\t\t", agentReply.IsSuccess)
-		fmt.Println("        OVERALL MIGRATION TIME :\t\t", elapsed.String())
+		fmt.Println("        OVERALL MIGRATION STATUS :       \t\t", agentReply.IsSuccess)
+		fmt.Println("        OVERALL MIGRATION TIME   :       \t\t", elapsed.String())
 		fmt.Println("        OVERALL MIGRATION TIME AT AGENT :\t\t", agentReply.TotalDuration.String())
-		fmt.Println("        OVERALL NETWORKING DELAY :\t\t", networkDelay.String())
+		fmt.Println("        OVERALL NETWORKING DELAY :       \t\t", networkDelay.String())
+		fmt.Println("")
 	} else {
 		log.Infoln("Migration Failed")
 	}

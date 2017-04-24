@@ -153,8 +153,9 @@ func tcpListener(wg *sync.WaitGroup, userName string, active bool, agent *Agent)
 
 func PrintResponse(response *protocol.CheckpointResponse) {
 
+	fmt.Println("")
 	log.Infoln("				MIGRATION STATS")
-
+	fmt.Println("")
 	arr := []string{"Metadata Dump",
 		"Metadata Scp",
 		"Container Checkpoint",
@@ -172,7 +173,7 @@ func PrintResponse(response *protocol.CheckpointResponse) {
 	}
 	fmt.Println("        OVERALL STATUS :\t", response.IsSuccess)
 	fmt.Println("        OVERALL TIME TAKEN :\t", response.TotalDuration.String())
-
+	fmt.Println("")
 }
 
 func main() {

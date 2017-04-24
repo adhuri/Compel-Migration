@@ -253,6 +253,8 @@ func CheckpointAndRestore(containerId, destinationIp, checkpointName, user strin
 	chan3 := make(chan CommandResult)
 	commonChan := make(chan CommandResult, 4)
 
+	fmt.Println("")
+
 	result, err := StopLoadBalancer(containerId, destinationIp, checkpointName, user)
 	if err != nil {
 		return
