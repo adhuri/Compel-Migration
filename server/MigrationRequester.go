@@ -10,7 +10,7 @@ import (
 )
 
 func SendMigrationRequest(request *protocol.CheckpointRequest, server *model.Server, log *logrus.Logger) error {
-	addr := "127.0.0.1" + ":" + "5052"
+	addr := request.SourceAgentIP + ":" + "5052"
 	conn, err := net.Dial("tcp", addr)
 	defer conn.Close()
 	if err != nil {
