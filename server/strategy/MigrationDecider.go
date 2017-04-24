@@ -68,7 +68,10 @@ func migrationDecision(buckets []*Bucket, server *model.Server, log *logrus.Logg
 }
 
 func stagedDecision(metric string, buckets []*Bucket, server *model.Server, log *logrus.Logger) (bool, *protocol.CheckpointRequest) {
-
+	if server.GetMigrationStatus() {
+		// Additional Check before processing
+		log.Errorln(metric, " Decision : Previous Migration is in progress - Cannot Migrate to avoid CHAOS")
+	}
 	decisionFlag, CheckpointRequest := metricDecision(metric, buckets, server, log)
 	log.Infoln("Decision for metric ", metric, " done. Stats show migration not needed")
 
