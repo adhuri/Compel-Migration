@@ -168,7 +168,7 @@ func PrintResponse(response *protocol.CheckpointResponse) {
 
 	for _, k := range arr {
 		v := response.StatusMap[k]
-		d := v.Duration / time.Millisecond
+		d := v.Duration
 		fmt.Println("        Status : ", v.IsSuccess, "\t\tDuration : "+d.String()+"\t\tActivity : "+k)
 	}
 	fmt.Println("        OVERALL STATUS :\t", response.IsSuccess)
