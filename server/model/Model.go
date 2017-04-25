@@ -47,13 +47,13 @@ func NewServer(immovableContainersList []string, threshold int64, cpufp int64, m
 func (server *Server) GetCPUThreshold() int64 {
 	server.RLock()
 	defer server.RUnlock()
-	return server.previousSystemMigrationTimeStamp
+	return server.cpuThreshold
 }
 
 func (server *Server) GetMemoryThreshold() int64 {
 	server.RLock()
 	defer server.RUnlock()
-	return server.previousSystemMigrationTimeStamp
+	return server.memThreshold
 }
 
 func (server *Server) GetPreviousSystemMigrationTime() int64 {
