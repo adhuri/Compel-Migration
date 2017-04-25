@@ -29,4 +29,4 @@ while [ $# -gt 0 ]; do
 done
 
 compel_server="152.46.19.201"
-ssh $USER@$compel_server  "sudo service nginx start"
+ssh $USER@$compel_server  "sudo service haproxy start"
