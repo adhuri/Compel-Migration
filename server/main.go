@@ -49,20 +49,24 @@ func main() {
 	cpuFalsePositiveThreshold := flag.Int64("cpufp", 3, "Use a counter to specify the number of time false positives due to CPU accepted")
 	memoryFalsePositiveThreshold := flag.Int64("memfp", 1, "Use a counter to specify the number of time false positives due to Memory accepted")
 
+	cpuThreshold := flag.Int64("cputhreshold", 100, "Threshold for CPU to migrate")
+	memThreshold := flag.Int64("memthreshold", 100, "Threshold for memory to migrate")
 	flag.Parse()
 
 	log.WithFields(logrus.Fields{
-		"immovable": *immovableContainers,
-		"migrate":   *migrationFeatureStatus,
-		"thrashing": *thrashingThreshold,
-		"cpufp":     *cpuFalsePositiveThreshold,
-		"memfp":     *memoryFalsePositiveThreshold,
+		"immovable":    *immovableContainers,
+		"migrate":      *migrationFeatureStatus,
+		"thrashing":    *thrashingThreshold,
+		"cpufp":        *cpuFalsePositiveThreshold,
+		"memfp":        *memoryFalsePositiveThreshold,
+		"cputhreshold": *cpuThreshold,
+		"memthreshold": *memThreshold,
 	}).Infoln("Inputs from command line")
 
 	immovableContainersList := strings.Split(*immovableContainers, ",")
 	log.Infoln("Immovable Containers List ", immovableContainersList)
 
-	server = model.NewServer(immovableContainersList, *thrashingThreshold, *cpuFalsePositiveThreshold, *memoryFalsePositiveThreshold)
+	server = model.NewServer(immovableContainersList, *thrashingThreshold, *cpuFalsePositiveThreshold, *memoryFalsePositiveThreshold, *cpuThreshold, *memThreshold)
 
 	// Testing thrashing
 	//server.SetPreviousContainerMigrationTime("container41", time.Now().Unix())

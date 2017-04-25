@@ -19,7 +19,7 @@ func MigrationNeeded(predictionData *protocol.PredictionData, server *model.Serv
 
 	for clientIndex, client := range predictionData.ClientData {
 		log.Debug("Creating Bucket for Agent ", clientIndex, " , AgentIP ", client.AgentIp)
-		newBucket := NewBucket(client.AgentIp)
+		newBucket := NewBucket(client.AgentIp, server.GetCPUThreshold(), server.GetMemoryThreshold())
 
 		for containerIndex, container := range client.ContainerData {
 			log.Debug("Creating Container for Container ", containerIndex, " , ContainerID ", container.ContainerId)
