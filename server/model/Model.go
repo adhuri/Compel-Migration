@@ -12,6 +12,8 @@ type Server struct {
 	cpufp                            int64
 	memfp                            int64
 	falsePositiveMap                 map[string]*FalsePositive // Check false positives before accepting decision of migrating
+	cpuThreshold                     int64
+	memThreshold                     int64
 }
 
 // To handle False Positives
@@ -27,7 +29,7 @@ func NewFalsePositive() *FalsePositive {
 	}
 }
 
-func NewServer(immovableContainersList []string, threshold int64, cpufp int64, memfp int64) *Server {
+func NewServer(immovableContainersList []string, threshold int64, cpufp int64, memfp int64, cputhresh int64, memthresh int64) *Server {
 	return &Server{
 		previousMigrationMap:             make(map[string]int64),
 		isMigrating:                      false,
@@ -37,7 +39,21 @@ func NewServer(immovableContainersList []string, threshold int64, cpufp int64, m
 		memfp:                            memfp,
 		falsePositiveMap:                 make(map[string]*FalsePositive),
 		previousSystemMigrationTimeStamp: 0,
+		cpuThreshold:                     cputhresh,
+		memThreshold:                     memthresh,
 	}
+}
+
+func (server *Server) GetCPUThreshold() int64 {
+	server.RLock()
+	defer server.RUnlock()
+	return server.cpuThreshold
+}
+
+func (server *Server) GetMemoryThreshold() int64 {
+	server.RLock()
+	defer server.RUnlock()
+	return server.memThreshold
 }
 
 func (server *Server) GetPreviousSystemMigrationTime() int64 {
